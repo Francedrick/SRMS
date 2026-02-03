@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barangay Directory - Solicitation Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="list.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="preview-image-small">
+                    <img src="preview.png" alt="Logo">
+                </div>
+                <div class="sidebar-title">
+                    <h3>District 5</h3>
+                    <p>Management</p>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item" data-page="dashboard">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="new-solicitation.html" class="nav-item" data-page="new-solicitation">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="12" y1="18" x2="12" y2="12"></line>
+                        <line x1="9" y1="15" x2="15" y2="15"></line>
+                    </svg>
+                    <span>New Solicitation</span>
+                </a>
+                <a href="records.html" class="nav-item" data-page="records">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    <span>Records</span>
+                </a>
+                <a href="reports.html" class="nav-item" data-page="reports">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                    <span>Reports</span>
+                </a>
+                <a href="summary.html" class="nav-item" data-page="summary">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M11 19V6"></path>
+                        <path d="M7 12H4"></path>
+                        <path d="M7 19H4"></path>
+                        <path d="M20 19h-3"></path>
+                        <path d="M20 12h-3"></path>
+                        <path d="M13 12h-2"></path>
+                        <path d="M13 5h-2"></path>
+                        <path d="M17 12V3"></path>
+                        <path d="M17 19v2"></path>
+                        <path d="M7 5v14"></path>
+                    </svg>
+                    <span>Summary</span>
+                </a>
+                <a href="#" class="nav-item active" data-page="list">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <line x1="8" y1="6" x2="21" y2="6"></line>
+                        <line x1="8" y1="12" x2="21" y2="12"></line>
+                        <line x1="8" y1="18" x2="21" y2="18"></line>
+                        <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                        <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                        <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                    </svg>
+                    <span>List</span>
+                    <svg class="nav-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                </a>
+            </nav>
+            
+            <button class="logout-btn" id="logoutBtn">
+                <svg class="logout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                <span>Logout</span>
+            </button>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <h1 class="header-title">DISTRICT 5 - SOLICITATION RECORD MANAGEMENT SYSTEM</h1>
+                    <div class="header-subtitle">
+                        <span class="status-dot"></span>
+                        <span>City Government of Manila</span>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <button class="icon-btn notification-btn" id="notificationBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                        </svg>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    
+                    <button class="icon-btn settings-btn" id="settingsBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V22a2 2 0 1 1-4 0v-.08a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.08a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.08a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.08a1.65 1.65 0 0 0-1.51 1z"></path>
+                        </svg>
+                    </button>
+                    
+                    <div class="user-profile">
+                        <div class="user-info">
+                            <span class="user-name">Admin User</span>
+                            <span class="user-role">Administrator</span>
+                        </div>
+                        <div class="user-avatar">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- List Content -->
+            <div class="content-area">
+                <div class="list-header">
+                    <div>
+                        <h2 class="page-title">Barangay Directory</h2>
+                        <p class="page-subtitle">Complete list of barangay officials and contact information</p>
+                    </div>
+                    <button class="add-btn" id="addContactBtn">+ Add New Contact</button>
+                </div>
+
+                <div class="search-box">
+                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search by zone, barangay, chairman, or contact...">
+                </div>
+
+                <div class="directory-card">
+                    <div class="card-top">
+                        <div>
+                            <div class="card-title">Official Directory</div>
+                            <div class="card-subtitle" id="recordCount">Showing 0 barangay records</div>
+                        </div>
+                        <div class="badge badge-green" id="statusBadge">Active</div>
+                    </div>
+
+                    <div class="table-wrapper" id="tableWrapper">
+                        <table class="directory-table">
+                            <thead>
+                                <tr>
+                                    <th>Zone</th>
+                                    <th>Barangay</th>
+                                    <th>Current Chairman</th>
+                                    <th>Former Chairman</th>
+                                    <th>Contact Number</th>
+                                    <th class="actions-col">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="empty-state" id="emptyState">
+                        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <h3>No contacts found</h3>
+                        <p>Add your first barangay contact to get started</p>
+                    </div>
+
+                    <div class="pagination">
+                        <div class="contacts-count" id="contactsCount">Total contacts: 0</div>
+                        <div class="pager">
+                            <button class="pager-btn" id="prevBtn">Previous</button>
+                            <div class="pager-pages" id="pageButtons"></div>
+                            <button class="pager-btn" id="nextBtn">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help Button -->
+            <button class="help-fab" id="helpBtn">?</button>
+        </main>
+    </div>
+
+    <script src="list.js"></script>
+</body>
+</html>

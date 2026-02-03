@@ -1,0 +1,332 @@
+/* Header Styles */
+.top-header {
+    background: linear-gradient(135deg, #5268a8 0%, #5e76b5 100%);
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+    flex: 1;
+}
+
+.header-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    letter-spacing: 0.5px;
+}
+
+.header-subtitle {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    opacity: 0.95;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    background: #FFB020;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.icon-btn {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.icon-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.icon-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+    color: white;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #EF4444;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-left: 10px;
+}
+
+.user-info {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.user-role {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.user-avatar {
+    width: 45px;
+    height: 45px;
+    background: #FFB020;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-avatar svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+    color: white;
+}
+
+/* List Page Styles */
+
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #8B5CF6 0%, #EC4899 100%);
+    color: white;
+    border: none;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.25);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.add-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(139, 92, 246, 0.35); }
+
+.search-box {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 14px 16px 14px 48px;
+    border: 2px solid #e5e5e5;
+    border-radius: 12px;
+    font-size: 15px;
+    background: white;
+    transition: border 0.2s ease;
+}
+
+.search-box input:focus { outline: none; border-color: #4158D0; }
+
+.search-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    stroke-width: 2.2;
+    color: #9CA3AF;
+}
+
+.directory-card {
+    background: white;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.card-title { font-size: 16px; font-weight: 800; color: #111827; }
+.card-subtitle { font-size: 13px; color: #6B7280; }
+
+.badge {
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.badge-green { background: #ECFDF3; color: #0F5132; border: 1px solid #BBF7D0; }
+
+.table-wrapper { overflow-x: auto; }
+
+.directory-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.directory-table thead {
+    background: #F8FAFC;
+}
+
+.directory-table th {
+    padding: 14px;
+    text-align: left;
+    font-size: 13px;
+    letter-spacing: 0.3px;
+    color: #111827;
+    border-bottom: 2px solid #E5E7EB;
+}
+
+.directory-table td {
+    padding: 14px;
+    font-size: 14px;
+    color: #1F2937;
+    border-bottom: 1px solid #F1F5F9;
+    vertical-align: middle;
+}
+
+.actions-col { width: 120px; }
+
+.name-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #7C3AED;
+    color: white;
+    font-size: 12px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar.alt { background: #EC4899; }
+
+.contact-link {
+    color: #4F46E5;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.action-links { display: flex; gap: 12px; }
+
+.action-link { color: #374151; font-weight: 700; text-decoration: none; }
+
+.action-link:hover { color: #4158D0; }
+
+.empty-state {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.empty-state.show { display: flex; }
+
+.empty-icon {
+    width: 72px;
+    height: 72px;
+    stroke-width: 1.8;
+    color: #CBD5E1;
+    margin-bottom: 12px;
+}
+
+.pagination {
+    margin-top: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.contacts-count { font-size: 13px; color: #6B7280; }
+
+.pager { display: flex; align-items: center; gap: 8px; }
+
+.pager-btn {
+    padding: 8px 12px;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    font-weight: 700;
+    color: #374151;
+}
+
+.pager-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.pager-pages { display: flex; gap: 6px; }
+
+.page-chip {
+    min-width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid #E5E7EB;
+    background: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: 700;
+    color: #374151;
+}
+
+.page-chip.active {
+    background: #4158D0;
+    color: white;
+    border-color: #4158D0;
+}
+
+@media (max-width: 1000px) {
+    .list-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .card-top { flex-direction: column; align-items: flex-start; gap: 8px; }
+}

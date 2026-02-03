@@ -1,0 +1,17 @@
+{
+  "name": "solicitation",
+  "productName": "solicitation",
+  "version": "1.0.0",
+  "description": "solicitation record management",
+  "license": "MIT",
+  "author": "",
+  "type": "commonjs",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "electron": "^40.0.0",
+    "toastify-js": "^1.12.0"
+  }
+}
