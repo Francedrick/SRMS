@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file:; font-src 'self' data:;">
+    <base href="file:///C:/Users/franc/Downloads/Solicitation/">
     <title>Records - Solicitation Management System</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="dashboard.css">
-    <link rel="stylesheet" href="records.css">
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/dashboard.css">
+    <link rel="stylesheet" href="styles/records.css">
+    <link rel="stylesheet" href="node_modules/toastify-js/src/toastify.css">
 </head>
 <body>
     <div class="dashboard-container">
@@ -14,16 +17,16 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="preview-image-small">
-                    <img src="preview.png" alt="Logo">
+                    <img src="assets/images/logo.png" alt="Lungsod ng Maynila seal">
                 </div>
                 <div class="sidebar-title">
-                    <h3>District 5</h3>
-                    <p>Management</p>
+                    <h3>SRMS</h3>
+                    <p>City Government of Manila</p>
                 </div>
             </div>
             
             <nav class="sidebar-nav">
-                <a href="dashboard.html" class="nav-item" data-page="dashboard">
+                <a href="#" class="nav-item" data-page="dashboard">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -31,7 +34,7 @@
                     <span>Dashboard</span>
                 </a>
                 
-                <a href="new-solicitation.html" class="nav-item" data-page="new-solicitation">
+                <a href="#" class="nav-item" data-page="new-solicitation">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                         <polyline points="14 2 14 8 20 8"></polyline>
@@ -108,21 +111,6 @@
                 </div>
                 
                 <div class="header-right">
-                    <button class="icon-btn notification-btn" id="notificationBtn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                        </svg>
-                        <span class="notification-badge">3</span>
-                    </button>
-                    
-                    <button class="icon-btn settings-btn" id="settingsBtn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V22a2 2 0 1 1-4 0v-.08a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.08a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.08a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.08a1.65 1.65 0 0 0-1.51 1z"></path>
-                        </svg>
-                    </button>
-                    
                     <div class="user-profile">
                         <div class="user-info">
                             <span class="user-name">Admin User</span>
@@ -146,14 +134,6 @@
                         <p class="page-subtitle">View and manage all solicitation requests</p>
                     </div>
                     <div class="header-actions">
-                        <button class="btn-export" id="exportBtn">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="7 10 12 15 17 10"></polyline>
-                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                            </svg>
-                            Export
-                        </button>
                         <button class="btn-refresh" id="refreshBtn">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <polyline points="23 4 23 10 17 10"></polyline>
@@ -162,6 +142,10 @@
                             </svg>
                             Refresh
                         </button>
+                        <select id="valueTypeSelect" class="value-type-select" aria-label="Display Value Type">
+                            <option value="amount" selected>Amount</option>
+                            <option value="item">Quantity</option>
+                        </select>
                     </div>
                 </div>
                 
@@ -209,19 +193,21 @@
                         </div>
                         
                         <div class="filter-field">
-                            <label>Assistance</label>
-                            <select id="filterAssistance">
-                                <option value="">All Types</option>
-                                <option value="financial">Financial Aid</option>
-                                <option value="medical">Medical Assistance</option>
-                                <option value="educational">Educational Support</option>
-                                <option value="burial">Burial Assistance</option>
-                            </select>
+                            <label>Assistance Type</label>
+                            <div class="autocomplete-wrapper">
+                                <input type="text" id="filterAssistance" placeholder="All Types" autocomplete="off">
+                                <div class="autocomplete-dropdown" id="filterAssistanceDropdown"></div>
+                            </div>
                         </div>
                         
                         <div class="filter-field">
-                            <label>Date Range</label>
-                            <input type="text" id="filterDateRange" placeholder="Select Period" readonly>
+                            <label>From Date</label>
+                            <input type="date" id="filterDateFrom">
+                        </div>
+                        
+                        <div class="filter-field">
+                            <label>To Date</label>
+                            <input type="date" id="filterDateTo">
                         </div>
                         
                         <div class="filter-field">
@@ -242,14 +228,14 @@
                     <table class="records-table">
                         <thead>
                             <tr>
-                                <th>Zone</th>
-                                <th>Barangay</th>
-                                <th>Chairman</th>
-                                <th>Solicitor</th>
-                                <th>Assistance</th>
-                                <th>Amount</th>
-                                <th>Date</th>
-                                <th>Status</th>
+                                <th data-sort-field="zone">Zone</th>
+                                <th data-sort-field="barangay">Barangay</th>
+                                <th data-sort-field="chairman">Chairman</th>
+                                <th data-sort-field="solicitor">Solicitor</th>
+                                <th data-sort-field="assistance">Assistance</th>
+                                <th id="valueColumnHeader" data-sort-field="value">Amount</th>
+                                <th data-sort-field="date">Date</th>
+                                <th data-sort-field="status">Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -270,11 +256,83 @@
                 </div>
             </div>
             
-            <!-- Help Button -->
-            <button class="help-fab" id="helpBtn">?</button>
+            <!-- Edit Modal -->
+            <div class="modal" id="editModal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Edit Record</h2>
+                        <button class="modal-close" id="closeEditModal">&times;</button>
+                    </div>
+                    <form id="editForm" class="edit-form">
+                        <input type="hidden" id="editId">
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label>Zone <span class="required">*</span></label>
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" id="editZone" required placeholder="Select or Type Zone" autocomplete="off">
+                                    <div class="autocomplete-dropdown" id="editZoneDropdown" style="z-index: 1000;"></div>
+                                </div>
+                            </div>
+                            <div class="form-field">
+                                <label>Barangay <span class="required">*</span></label>
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" id="editBarangay" required placeholder="Select or Type Barangay" autocomplete="off">
+                                    <div class="autocomplete-dropdown" id="editBarangayDropdown" style="z-index: 1000;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label>Chairman</label>
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" id="editChairman" placeholder="Select or type Chairman" autocomplete="off">
+                                    <div class="autocomplete-dropdown" id="editChairmanDropdown" style="z-index: 1000;"></div>
+                                </div>
+                            </div>
+                            <div class="form-field">
+                                <label>Solicitor</label>
+                                <input type="text" id="editSolicitor">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label>Assistance Type <span class="required">*</span></label>
+                                <div class="assistance-tree-wrapper" id="editAssistanceWrapper">
+                                    <input type="text" id="editAssistance" placeholder="Select Assistance Type" autocomplete="off" readonly required>
+                                    <div class="assistance-tree-dropdown" id="editAssistanceDropdown"></div>
+                                </div>
+                            </div>
+                            <div class="form-field">
+                                <label>Amount <span class="required">*</span></label>
+                                <input type="number" id="editAmount" step="0.01" min="0" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label>Date <span class="required">*</span></label>
+                                <input type="date" id="editDate" required>
+                            </div>
+                            <div class="form-field">
+                                <label>Status <span class="required">*</span></label>
+                                <select id="editStatus" required>
+                                    <option value="pending">Pending</option>
+                                    <option value="approved">Approved</option>
+                                    <option value="rejected">Rejected</option>
+                                    <option value="completed">Completed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-cancel" id="cancelEdit">Cancel</button>
+                            <button type="submit" class="btn-save">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </main>
     </div>
     
-    <script src="records.js"></script>
+    <script src="scripts/records.js"></script>
 </body>
 </html>
+

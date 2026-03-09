@@ -3,78 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file:; font-src 'self' data:;">
+    <base href="file:///C:/Users/franc/Downloads/Solicitation/">
     <title>District 5 Solicitation Record Management System</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles/styles.css">
 </head>
-<body>
-    <div class="container">
-        <!-- Left Section -->
-        <div class="left-section">
-            <div class="preview-image">
-                <img src="assets/images/image.png" alt="Lungsod ng Maynila seal">
-            </div>
-            
-            <h1 class="title">
-                WEL<span class="highlight">COME</span> ✨
-            </h1>
-            <h2 class="subtitle">DISTRICT 5 SOLICITATION RECORD<br>MANAGEMENT SYSTEM</h2>
-            
-            <div class="location">
-                <span class="location-bar"></span>
-                <span class="location-text">City Government of Manila</span>
-            </div>
-            
-            <button class="get-started-btn">
-                Get Started <span class="arrow">→</span>
-            </button>
-            
-            <footer class="footer">
-                <p>© 2026 Solicitation Management System. All Rights Reserved.</p>
-                <p>OJT Project for City Government of Manila</p>
-            </footer>
+<body class="landing">
+    <div class="landing-root">
+        <div class="background-wrapper">
+            <img src="assets/images/background.jpeg" alt="Background" class="background-image">
+            <div class="background-overlay"></div>
+            <div class="mesh-gradient"></div>
         </div>
-        
-        <!-- Right Section -->
-        <div class="right-section">
-            <div class="card">
-                <div class="icon-wrapper blue">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
+
+        <div class="particles-container" id="particlesContainer"></div>
+
+        <div class="landing-content">
+            <div class="hero">
+                <div class="seal">
+                    <img src="assets/images/logo.png" alt="Lungsod ng Maynila seal">
                 </div>
-                <h3>Login to Your Account</h3>
-                <p>Secure access with your credentials to manage records.</p>
-            </div>
-            
-            <div class="card">
-                <div class="icon-wrapper pink">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <line x1="12" y1="18" x2="12" y2="12"></line>
-                        <line x1="9" y1="15" x2="15" y2="15"></line>
+
+                <h1 class="hero-title">
+                    <span class="hero-title-white">WEL</span><span class="hero-title-highlight">COME</span>
+                </h1>
+
+                <h2 class="hero-subtitle">
+                    DISTRICT 5 SOLICITATION RECORD
+                    MANAGEMENT SYSTEM
+                </h2>
+
+                <p class="hero-location">City Government of Manila</p>
+
+                <button class="cta-button">
+                    Continue
+                    <svg class="cta-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14"></path>
+                        <path d="M13 5l7 7-7 7"></path>
                     </svg>
-                </div>
-                <h3>Manage Solicitations</h3>
-                <p>Record, track and review all solicitation requests efficiently.</p>
+                </button>
             </div>
-            
-            <div class="card">
-                <div class="icon-wrapper green">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                        <polyline points="9 12 11 14 15 10"></polyline>
-                    </svg>
+
+            <div class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3>Login to Your Account</h3>
+                        <p>Use your credentials to access your account.</p>
+                    </div>
                 </div>
-                <h3>Ensure Compliance</h3>
-                <p>Maintain regulatory compliance and audit trails.</p>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="12" y1="18" x2="12" y2="12"></line>
+                            <line x1="9" y1="15" x2="15" y2="15"></line>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3>Manage Solicitations</h3>
+                        <p>Record, track and review solicitation records.</p>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            <polyline points="9 12 11 14 15 10"></polyline>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3>Ensure Compliance</h3>
+                        <p>Make sure all solicitations adhere to regulations.</p>
+                    </div>
+                </div>
             </div>
-            
-            <div class="help-icon">?</div>
+        </div>
+
+
+        <div class="landing-footer">
+            <p>© 2026 SOLICITATION MANAGEMENT SYSTEM</p>
+            <p>OFFICIAL OJT PROJECT • CITY GOVERNMENT OF MANILA</p>
         </div>
     </div>
-    
+
     <script src="renderer.js"></script>
 </body>
 </html>
+

@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file:; font-src 'self' data:;">
+    <base href="file:///C:/Users/franc/Downloads/Solicitation/">
     <title>Sign In - Solicitation Management System</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="login.css">
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/login.css">
+    <link rel="stylesheet" href="node_modules/toastify-js/src/toastify.css">
 </head>
 <body>
     <div class="login-container">
         <!-- Animated Background -->
         <div class="background-wrapper">
-            <img src="https://images.unsplash.com/photo-1762271458610-5f402f8dedf3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBvZmZpY2UlMjBjaXR5c2NhcGUlMjBuaWdodHxlbnwxfHx8fDE3NzAwMTIyNjN8MA&ixlib=rb-4.1.0&q=80&w=1080" 
+            <img src="assets/images/background.jpeg" 
                  alt="Background" class="background-image">
             <div class="background-overlay"></div>
             <div class="mesh-gradient"></div>
@@ -25,12 +28,12 @@
             <div class="logo-section">
                 <div class="logo-wrapper">
                     <div class="logo-inner">
-                        <img src="assets/images/image.png" alt="Logo" class="logo-image">
+                        <img src="assets/images/logo.png" alt="Logo" class="logo-image">
                     </div>
                 </div>
                 <div class="logo-text">
-                    <h2 class="logo-title">SRMS</h2>
-                    <p class="logo-subtitle">City of Manila</p>
+                    <h2 class="logo-title">Solicitation Record  Management System</h2>
+                    <p class="logo-subtitle">City Government of Manila</p>
                 </div>
             </div>
             <div class="nav-links">
@@ -44,11 +47,9 @@
         <div class="main-content">
             <!-- Left Side - Welcome Text -->
             <div class="welcome-section">
-                <h1 class="welcome-title">Welcome Back</h1>
-                <h2 class="welcome-subtitle">
-                    Solicitation Record<br>
-                    Management System
-                </h2>
+                <h1 class="welcome-title">
+                    <span class="welcome-white">WELCOME</span><span class="welcome-highlight">BACK</span>
+                </h1>
                 <p class="welcome-description">
                     A comprehensive platform for managing solicitation records
                     and streamlining administrative processes for the City Government of Manila.
@@ -82,7 +83,7 @@
                     
                     <form id="loginForm" class="login-form">
                         <div class="form-group">
-                            <label for="username">Email Address</label>
+                            <label for="username">Username</label>
                             <div class="input-wrapper">
                                 <div class="input-icon">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -91,10 +92,10 @@
                                     </svg>
                                 </div>
                                 <input 
-                                    type="email" 
+                                    type="text" 
                                     id="username" 
                                     name="username" 
-                                    placeholder="your.email@example.com"
+                                    placeholder="Enter your username or email"
                                     required
                                 >
                             </div>
@@ -127,10 +128,6 @@
                         
                         <!-- Remember & Forgot -->
                         <div class="form-options">
-                            <label class="remember-me">
-                                <input type="checkbox" id="rememberMe">
-                                <span>Remember me</span>
-                            </label>
                             <a href="#" class="forgot-password" id="forgotPassword">Forgot password?</a>
                         </div>
                         
@@ -151,14 +148,13 @@
 
         <!-- Bottom Info -->
         <div class="bottom-info">
-            <p>© 2026 City Government of Manila · Office of Information Technology</p>
+            <p>© 2026 SOLICITATION MANAGEMENT SYSTEM</p>
+            <p>OFFICIAL OJT PROJECT • CITY GOVERNMENT OF MANILA</p>
         </div>
 
-        <!-- Decorative Elements -->
-        <div class="decorative-circle circle-1"></div>
-        <div class="decorative-circle circle-2"></div>
     </div>
     
-    <script src="login.js"></script>
+    <script src="scripts/login.js"></script>
 </body>
 </html>
+

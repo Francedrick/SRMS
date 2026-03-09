@@ -9,13 +9,6 @@ try {
 }
 
 try {
-    require('toastify-js/src/toastify.css');
-    console.log('Toastify CSS loaded');
-} catch (e) {
-    console.error('Failed to load Toastify CSS:', e);
-}
-
-try {
     const { ipcRenderer } = require('electron');
     console.log('ipcRenderer loaded:', !!ipcRenderer);
 } catch (e) {
@@ -114,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Temporary demo login (replace with actual authentication)
-        const isValidUser = (username === 'user1' && password === 'user123') || (username === 'admin' && password === 'admin');
+        const isValidUser = (username === 'admin' && password === 'admin') || (username === 'admin1' && password === 'admin1');
         console.log('Is valid user:', isValidUser);
 
         if (isValidUser) {

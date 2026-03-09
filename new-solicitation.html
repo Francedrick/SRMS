@@ -3,10 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file:; font-src 'self' data:;">
+    <base href="file:///C:/Users/franc/Downloads/Solicitation/">
     <title>New Solicitation - Solicitation Management System</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="dashboard.css">
-    <link rel="stylesheet" href="new-solicitation.css">
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles/dashboard.css">
+    <link rel="stylesheet" href="styles/new-solicitation.css">
+    <link rel="stylesheet" href="node_modules/toastify-js/src/toastify.css">
 </head>
 <body>
     <div class="dashboard-container">
@@ -14,16 +17,16 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="preview-image-small">
-                    <img src="preview.png" alt="Logo">
+                    <img src="assets/images/logo.png" alt="Lungsod ng Maynila seal">
                 </div>
                 <div class="sidebar-title">
-                    <h3>District 5</h3>
-                    <p>Management</p>
+                    <h3>SRMS</h3>
+                    <p>City Government of Manila</p>
                 </div>
             </div>
             
             <nav class="sidebar-nav">
-                <a href="dashboard.html" class="nav-item" data-page="dashboard">
+                <a href="#" class="nav-item" data-page="dashboard">
                     <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                         <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -108,21 +111,6 @@
                 </div>
                 
                 <div class="header-right">
-                    <button class="icon-btn notification-btn" id="notificationBtn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                        </svg>
-                        <span class="notification-badge">3</span>
-                    </button>
-                    
-                    <button class="icon-btn settings-btn" id="settingsBtn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V22a2 2 0 1 1-4 0v-.08a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.08a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.08a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.08a1.65 1.65 0 0 0-1.51 1z"></path>
-                        </svg>
-                    </button>
-                    
                     <div class="user-profile">
                         <div class="user-info">
                             <span class="user-name">Admin User</span>
@@ -160,54 +148,54 @@
                         <div class="form-row">
                             <div class="form-field">
                                 <label for="zone">Zone <span class="required">*</span></label>
-                                <select id="zone" name="zone" required>
-                                    <option value="">Select Zone</option>
-                                    <option value="zone1">Zone 1</option>
-                                    <option value="zone2">Zone 2</option>
-                                    <option value="zone3">Zone 3</option>
-                                    <option value="zone4">Zone 4</option>
-                                    <option value="zone5">Zone 5</option>
-                                </select>
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" id="zone" name="zone" placeholder="Select or type Zone" autocomplete="off" inputmode="numeric" required>
+                                    <div class="autocomplete-dropdown" id="zoneDropdown"></div>
+                                </div>
                             </div>
                             
                             <div class="form-field">
                                 <label for="assistanceType">Assistance Type <span class="required">*</span></label>
-                                <input type="text" id="assistanceType" name="assistanceType" placeholder="e.g. Financial Aid, Medical Assistance" required>
-                            </div>
-                        </div>
-                        
-                        <div class="form-row">
-                            <div class="form-field">
-                                <label for="barangay">Barangay <span class="required">*</span></label>
-                                <select id="barangay" name="barangay" required>
-                                    <option value="">Select Barangay</option>
-                                    <option value="brgy1">Barangay 1</option>
-                                    <option value="brgy2">Barangay 2</option>
-                                    <option value="brgy3">Barangay 3</option>
-                                    <option value="brgy4">Barangay 4</option>
-                                    <option value="brgy5">Barangay 5</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-field">
-                                <label for="amount">Amount <span class="required">*</span></label>
-                                <div class="input-with-prefix">
-                                    <span class="input-prefix">₱</span>
-                                    <input type="number" id="amount" name="amount" placeholder="0.00" step="0.01" min="0" required>
+                                <div class="assistance-tree-wrapper" id="assistanceTypeWrapper">
+                                    <input type="text" id="assistanceType" name="assistanceType" placeholder="Select Assistance Type" autocomplete="off" readonly required>
+                                    <div class="assistance-tree-dropdown" id="assistanceTypeDropdown"></div>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="form-row">
                             <div class="form-field">
-                                <label for="chairman">Chairman</label>
-                                <select id="chairman" name="chairman">
-                                    <option value="">Select Chairman</option>
-                                    <option value="chairman1">Juan Dela Cruz</option>
-                                    <option value="chairman2">Maria Santos</option>
-                                    <option value="chairman3">Pedro Reyes</option>
-                                    <option value="chairman4">Ana Garcia</option>
-                                </select>
+                                <label for="barangay">Barangay <span class="required">*</span></label>
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" id="barangay" name="barangay" placeholder="Select or type Barangay" autocomplete="off" inputmode="numeric" required>
+                                    <div class="autocomplete-dropdown" id="barangayDropdown"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-field">
+                                <div class="amount-item-labels">
+                                    <label for="amount">Amount <span class="required">*</span></label>
+                                    <label for="itemName">Quantity <span class="required">*</span></label>
+                                </div>
+                                <div class="amount-item-inline">
+                                    <div class="input-with-prefix amount-input-group">
+                                        <span class="input-prefix"></span>
+                                        <input type="number" id="amount" name="amount" placeholder="₱ 0.00" step=" 0.01" min=" 0" required>
+                                    </div>
+                                    <div class="item-input-group">
+                                        <input type="number" id="itemName" name="itemName" placeholder="Enter the Quantity" step="any" min="0" inputmode="decimal" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-field">
+                                <label for="chairman">Chairman <span class="required">*</span></label>
+                                <div class="autocomplete-wrapper">
+                                    <input type="text" id="chairman" name="chairman" placeholder="Select or type Chairman" autocomplete="off" required>
+                                    <div class="autocomplete-dropdown" id="chairmanDropdown"></div>
+                                </div>
                             </div>
                             
                             <div class="form-field">
@@ -218,15 +206,14 @@
                         
                         <div class="form-row">
                             <div class="form-field">
-                                <label for="solicitor">Solicitor</label>
-                                <input type="text" id="solicitor" name="solicitor" placeholder="Enter solicitor name">
+                                <label for="solicitor">Solicitor <span class="required">*</span></label>
+                                <input type="text" id="solicitor" name="solicitor" placeholder="Enter solicitor name" required>
                             </div>
                             
                             <div class="form-field">
                                 <label for="status">Status <span class="required">*</span></label>
                                 <select id="status" name="status" required>
-                                    <option value="">Select Status</option>
-                                    <option value="pending">Pending</option>
+                                    <option value="pending" selected>Pending</option>
                                     <option value="approved">Approved</option>
                                     <option value="rejected">Rejected</option>
                                     <option value="completed">Completed</option>
@@ -235,18 +222,21 @@
                         </div>
                         
                         <div class="info-box">
-                            <svg class="info-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="16" x2="12" y2="12"></line>
-                                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                            </svg>
+                            <span class="info-icon" aria-hidden="true">⚠</span>
                             <div>
-                                <h4>Important Note</h4>
+                                <h4>Important Reminder</h4>
                                 <p>Please ensure all information is accurate before submitting. Fields marked with <span class="required">*</span> are required.</p>
                             </div>
                         </div>
                         
                         <div class="form-actions">
+                            <button type="button" class="btn-cancel" id="cancelBtn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                                Cancel
+                            </button>
                             <button type="submit" class="btn-submit">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                     <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
@@ -255,23 +245,14 @@
                                 </svg>
                                 Submit Record
                             </button>
-                            <button type="button" class="btn-cancel" id="cancelBtn">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                </svg>
-                                Cancel
-                            </button>
                         </div>
                     </form>
                 </div>
             </div>
-            
-            <!-- Help Button -->
-            <button class="help-fab" id="helpBtn">?</button>
         </main>
     </div>
     
-    <script src="new-solicitation.js"></script>
+    <script src="scripts/new-solicitation.js"></script>
 </body>
 </html>
+

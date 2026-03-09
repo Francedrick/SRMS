@@ -1,3 +1,53 @@
+/* Summary Page Animations */
+@keyframes donutFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.donut-card {
+    animation: donutFadeIn 0.6s ease-out backwards;
+}
+
+.donut-card:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.donut-card:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.donut-card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.stat-card {
+    animation: donutFadeIn 0.6s ease-out 0.4s backwards;
+}
+
+.stat-card:nth-child(2) {
+    animation-delay: 0.5s;
+}
+
+.overall-card {
+    animation: donutFadeIn 0.6s ease-out 0.6s backwards;
+}
+
+.legend-item {
+    animation: fadeInScale 0.4s ease-out backwards;
+}
+
+.legend-item:nth-child(1) { animation-delay: 0.5s; }
+.legend-item:nth-child(2) { animation-delay: 0.55s; }
+.legend-item:nth-child(3) { animation-delay: 0.6s; }
+.legend-item:nth-child(4) { animation-delay: 0.65s; }
+.legend-item:nth-child(5) { animation-delay: 0.7s; }
+
 /* Header Styles */
 .top-header {
     background: linear-gradient(135deg, #5268a8 0%, #5e76b5 100%);
@@ -129,6 +179,39 @@
     margin-bottom: 20px;
 }
 
+.summary-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.summary-value-type-select {
+    min-width: 130px;
+    padding: 10px 36px 10px 12px;
+    border: 2px solid #e5e5e5;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #475569;
+    background-color: white;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: all 0.3s ease;
+}
+
+.summary-value-type-select option {
+    font-size: 18px;
+}
+
+.summary-value-type-select:focus {
+    outline: none;
+    border-color: #4158D0;
+    box-shadow: 0 0 0 3px rgba(65, 88, 208, 0.1);
+}
+
 .summary-icon {
     width: 56px;
     height: 56px;
@@ -167,21 +250,57 @@
     display: flex;
     align-items: center;
     gap: 10px;
+    font-size: 16px;
     font-weight: 800;
     color: #111827;
 }
 
 .card-title svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     stroke-width: 2.2;
 }
 
 .donut-wrap {
     position: relative;
-    width: 200px;
-    height: 200px;
+    width: 260px;
+    height: 260px;
     margin: 0 auto;
+}
+
+@property --reveal {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+}
+
+@keyframes donutSpinIn {
+    from {
+        opacity: 0;
+        transform: rotate(-140deg) scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: rotate(-90deg) scale(1);
+    }
+}
+
+@keyframes donutHoleIn {
+    from {
+        transform: scale(0.85);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+@keyframes donutRevealSweep {
+    from {
+        --reveal: 0deg;
+    }
+    to {
+        --reveal: 360deg;
+    }
 }
 
 .donut {
@@ -190,6 +309,17 @@
     border-radius: 50%;
     background: conic-gradient(#3B82F6 0deg, #3B82F6 60deg, #10B981 60deg, #10B981 120deg, #F59E0B 120deg, #F59E0B 190deg, #EC4899 190deg, #EC4899 250deg, #8B5CF6 250deg, #8B5CF6 310deg, #22C55E 310deg, #22C55E 360deg);
     position: relative;
+    transform: rotate(-90deg);
+    animation: donutSpinIn 1.6s cubic-bezier(0.16, 1, 0.3, 1) both, donutRevealSweep 3.5s cubic-bezier(0.25, 0.1, 0.25, 1) 0.2s both;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    will-change: transform, filter;
+    -webkit-mask-image: conic-gradient(#000 0deg, #000 var(--reveal), transparent var(--reveal), transparent 360deg);
+    mask-image: conic-gradient(#000 0deg, #000 var(--reveal), transparent var(--reveal), transparent 360deg);
+}
+
+.donut:hover {
+    transform: rotate(-90deg) scale(1.02);
+    filter: drop-shadow(0 10px 20px rgba(17, 24, 39, 0.18));
 }
 
 .donut::after {
@@ -198,6 +328,8 @@
     inset: 28px;
     background: white;
     border-radius: 50%;
+    animation: donutHoleIn 0.7s ease-out 0.2s both;
+    transform-origin: center;
 }
 
 .donut-center {
@@ -211,23 +343,44 @@
 }
 
 .center-label {
-    font-size: 13px;
+    font-size: 15px;
     color: #6b7280;
     margin-bottom: 4px;
 }
 
 .center-value {
-    font-size: 18px;
+    font-size: 24px;
     font-weight: 800;
     color: #111827;
 }
 
 .legend {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px 12px;
-    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    font-size: 15px;
     color: #374151;
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 8px;
+}
+
+.legend::-webkit-scrollbar {
+    width: 6px;
+}
+
+.legend::-webkit-scrollbar-track {
+    background: #F3F4F6;
+    border-radius: 10px;
+}
+
+.legend::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 10px;
+}
+
+.legend::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
 }
 
 .legend-item {
@@ -235,6 +388,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+    cursor: pointer;
 }
 
 .legend-left {
@@ -244,9 +398,21 @@
 }
 
 .dot {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
+}
+
+.legend-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: #2563EB;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #E5E7EB;
 }
 
 .stat-cards {
@@ -264,26 +430,26 @@
 }
 
 .stat-card-title {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 700;
     color: #111827;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
 .stat-card-value {
-    font-size: 24px;
+    font-size: 30px;
     font-weight: 800;
     color: #2563EB;
 }
 
 .stat-card-sub {
     color: #6b7280;
-    font-size: 13px;
-    margin: 6px 0;
+    font-size: 14px;
+    margin: 8px 0;
 }
 
 .stat-card-amount {
-    font-size: 18px;
+    font-size: 22px;
     font-weight: 800;
     color: #111827;
 }
@@ -300,12 +466,12 @@
 }
 
 .overall-label {
-    font-size: 15px;
+    font-size: 17px;
     opacity: 0.9;
 }
 
 .overall-value {
-    font-size: 28px;
+    font-size: 34px;
     font-weight: 900;
 }
 
@@ -327,11 +493,41 @@
 
 .trend-label { color: #fef3c7; }
 
+/* Donut Tooltip */
+.donut-tooltip {
+    position: fixed;
+    background: rgba(17, 24, 39, 0.95);
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.5;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 10000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    white-space: nowrap;
+}
+
+.donut-tooltip.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 @media (max-width: 1200px) {
     .donut-grid { grid-template-columns: 1fr; }
-    .donut-wrap { width: 180px; height: 180px; }
+    .donut-wrap { width: 240px; height: 240px; }
 }
 
 @media (max-width: 800px) {
+    .summary-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
     .stat-cards { grid-template-columns: 1fr; }
 }
