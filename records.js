@@ -2,7 +2,30 @@
 const { ipcRenderer } = require('electron');
 const Toastify = require('toastify-js');
 
+const FIREBASE_PROJECT_ID = 'solicitation-record-management';
+const FIREBASE_API_KEY = 'AIzaSyBKWo_Cwk0ZviijLJ5OU1a8Ym1r6e-6p8o';
+
 document.addEventListener('DOMContentLoaded', () => {
+    const userNameEl = document.querySelector('.user-name');
+    const userRoleEl = document.querySelector('.user-role');
+
+    function hydrateUserProfile() {
+        let sessionUser = null;
+        try {
+            sessionUser = JSON.parse(localStorage.getItem('user') || 'null');
+        } catch (error) {
+            sessionUser = null;
+        }
+
+        const displayName = String(sessionUser?.username || sessionUser?.name || 'Admin User').trim() || 'Admin User';
+        const displayRole = String(sessionUser?.role || 'Administrator').trim() || 'Administrator';
+
+        if (userNameEl) userNameEl.textContent = displayName;
+        if (userRoleEl) userRoleEl.textContent = displayRole;
+    }
+
+    hydrateUserProfile();
+
     const searchInput = document.getElementById('searchInput');
     const filterZone = document.getElementById('filterZone');
     const filterBarangay = document.getElementById('filterBarangay');
@@ -18,17 +41,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const sortableHeaders = document.querySelectorAll('.records-table thead th[data-sort-field]');
     const emptyState = document.getElementById('emptyState');
     const logoutBtn = document.getElementById('logoutBtn');
-    const helpBtn = document.getElementById('helpBtn');
     const navItems = document.querySelectorAll('.nav-item');
     const editZoneInput = document.getElementById('editZone');
     const editBarangayInput = document.getElementById('editBarangay');
     const editChairmanInput = document.getElementById('editChairman');
     const editSolicitorInput = document.getElementById('editSolicitor');
     const editAmountInput = document.getElementById('editAmount');
-    const editQuantityInput = document.getElementById('editQuantity') || document.getElementById('editItemName') || document.getElementById('editItem');
+    const editValueLabel = document.getElementById('editValueLabel');
     const editAssistanceInput = document.getElementById('editAssistance');
     const editAssistanceDropdown = document.getElementById('editAssistanceDropdown');
-    const editAssistanceWrapper = document.getElementById('editAssistanceWrapper');
 
     // Page map for navigation
     const pageMap = {
@@ -78,6 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const BARANGAY_DROPDOWN_DELAY_MS = 250;
     const MIN_VISIBLE_TABLE_ROWS = 8;
+    const ITEM_FILTER_PREFIX = 'Item - ';
     const STORAGE_KEYS = {
         amount: 'solicitationAmountRecords',
         item: 'solicitationItemRecords'
@@ -117,7 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
             children: []
         }
     ];
-    const expandedEditAssistanceCategories = new Set();
 
     function getCurrentValueType() {
         return valueTypeSelect?.value === 'item' ? 'item' : 'amount';
@@ -125,6 +146,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getCurrentStorageKey() {
         return STORAGE_KEYS[getCurrentValueType()];
+    }
+
+    function syncEditValueFieldByType() {
+        if (!editAmountInput) {
+            return;
+        }
+
+        const isItemType = getCurrentValueType() === 'item';
+        if (editValueLabel) {
+            editValueLabel.innerHTML = `${isItemType ? 'Quantity' : 'Amount'} <span class="required">*</span>`;
+        }
+
+        editAmountInput.placeholder = isItemType ? 'Enter Quantity' : 'Enter Amount';
     }
 
     function getRecordsFromCurrentStorage() {
@@ -145,10 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        if (editAssistanceDropdown && exceptDropdownId !== 'editAssistanceDropdown') {
-            editAssistanceDropdown.classList.remove('show');
-            editAssistanceWrapper?.classList.remove('active');
-        }
     }
 
     function toNumericInteger(value) {
@@ -186,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize page
     loadRecords();
+    syncSolicitationCollectionsFromFirebase();
 
     if (filterZone) {
         populateSelect(filterZone, zoneList, 'All Zones');
@@ -201,85 +232,6 @@ document.addEventListener('DOMContentLoaded', () => {
             () => getAssistanceFilterOptions(),
             () => applyFilters()
         );
-    }
-
-    if (editAssistanceInput && editAssistanceDropdown && editAssistanceWrapper) {
-        renderEditAssistanceTypeTree();
-
-        editAssistanceInput.addEventListener('click', (event) => {
-            event.stopPropagation();
-            closeAllDropdowns('editAssistanceDropdown');
-            editAssistanceDropdown.classList.toggle('show');
-            editAssistanceWrapper.classList.toggle('active', editAssistanceDropdown.classList.contains('show'));
-        });
-
-        editAssistanceInput.addEventListener('keydown', (event) => {
-            if (event.key === 'ArrowDown') {
-                event.preventDefault();
-                closeAllDropdowns('editAssistanceDropdown');
-                editAssistanceDropdown.classList.add('show');
-                editAssistanceWrapper.classList.add('active');
-            }
-            if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                closeAllDropdowns('editAssistanceDropdown');
-                editAssistanceDropdown.classList.toggle('show');
-                editAssistanceWrapper.classList.toggle('active', editAssistanceDropdown.classList.contains('show'));
-            }
-            if (event.key === 'Escape') {
-                editAssistanceDropdown.classList.remove('show');
-                editAssistanceWrapper.classList.remove('active');
-            }
-        });
-
-        editAssistanceDropdown.addEventListener('click', (event) => {
-            const parentButton = event.target.closest('[data-parent]');
-            const childButton = event.target.closest('[data-child]');
-            const leafButton = event.target.closest('[data-leaf]');
-
-            if (parentButton) {
-                const category = parentButton.dataset.parent;
-                if (!category) {
-                    return;
-                }
-
-                if (expandedEditAssistanceCategories.has(category)) {
-                    expandedEditAssistanceCategories.clear();
-                } else {
-                    expandedEditAssistanceCategories.clear();
-                    expandedEditAssistanceCategories.add(category);
-                }
-
-                renderEditAssistanceTypeTree();
-                editAssistanceDropdown.classList.add('show');
-                editAssistanceWrapper.classList.add('active');
-                return;
-            }
-
-            if (childButton) {
-                const child = childButton.dataset.child;
-                const parentContainer = childButton.closest('[data-children]');
-                const category = parentContainer?.dataset.children || '';
-                if (child) {
-                    selectEditAssistanceType(child, category);
-                }
-                return;
-            }
-
-            if (leafButton) {
-                const leaf = leafButton.dataset.leaf;
-                if (leaf) {
-                    selectEditAssistanceType(leaf);
-                }
-            }
-        });
-
-        document.addEventListener('click', (event) => {
-            if (!editAssistanceWrapper.contains(event.target)) {
-                editAssistanceDropdown.classList.remove('show');
-                editAssistanceWrapper.classList.remove('active');
-            }
-        });
     }
 
     if (editZoneInput) {
@@ -302,13 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
             editAmountInput.value = toNumericDecimal(editAmountInput.value);
         });
     }
-
-    if (editQuantityInput) {
-        editQuantityInput.setAttribute('inputmode', 'decimal');
-        editQuantityInput.addEventListener('input', () => {
-            editQuantityInput.value = toNumericDecimal(editQuantityInput.value);
-        });
-    }
+    syncEditValueFieldByType();
 
     if (editChairmanInput) {
         editChairmanInput.addEventListener('input', () => {
@@ -376,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
             syncEditChairmanFromBarangay(true);
         });
         setupAutocomplete('editChairman', 'editChairmanDropdown', () => getEditChairmanOptions());
+        setupAutocomplete('editAssistance', 'editAssistanceDropdown', () => getAssistanceFilterOptions());
 
         editZoneInput.addEventListener('blur', () => {
             const normalizedZone = normalizeZone(editZoneInput.value);
@@ -427,52 +374,6 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             return entities[char] || char;
         });
-    }
-
-    function renderEditAssistanceTypeTree() {
-        if (!editAssistanceDropdown) {
-            return;
-        }
-
-        editAssistanceDropdown.innerHTML = assistanceTypeTree.map(node => {
-            const hasChildren = Array.isArray(node.children) && node.children.length > 0;
-            const isExpanded = expandedEditAssistanceCategories.has(node.category);
-
-            if (!hasChildren) {
-                return `
-                    <button type="button" class="assistance-parent assistance-leaf" data-leaf="${escapeHtml(node.category)}">
-                        <span>${escapeHtml(node.category)}</span>
-                    </button>
-                `;
-            }
-
-            const childrenMarkup = node.children.map(child => `
-                <button type="button" class="assistance-child" data-child="${escapeHtml(child)}">
-                    ${escapeHtml(child)}
-                </button>
-            `).join('');
-
-            return `
-                <button type="button" class="assistance-parent" data-parent="${escapeHtml(node.category)}">
-                    <span>${escapeHtml(node.category)}</span>
-                    <span class="assistance-parent-arrow ${isExpanded ? 'expanded' : ''}">▸</span>
-                </button>
-                <div class="assistance-children ${isExpanded ? 'show' : ''}" data-children="${escapeHtml(node.category)}">
-                    ${childrenMarkup}
-                </div>
-            `;
-        }).join('');
-    }
-
-    function selectEditAssistanceType(value, category = '') {
-        if (!editAssistanceInput) {
-            return;
-        }
-
-        const selectedValue = category ? `${category} - ${value}` : value;
-        editAssistanceInput.value = selectedValue;
-        editAssistanceDropdown?.classList.remove('show');
-        editAssistanceWrapper?.classList.remove('active');
     }
 
     function loadRecords() {
@@ -568,22 +469,59 @@ document.addEventListener('DOMContentLoaded', () => {
         return sorted;
     }
 
+    const assistanceFilterAllowedCategoriesByValueType = {
+        amount: new Set([
+            'Event', 'Optical', 'Medical Assistance', 'Financial Assistance', 'Burial Assistance'
+        ]),
+        item: new Set([
+            'Sport Material', 'Medical Item', 'Event', 'Optical', 'Animal Assistance'
+        ])
+    };
+
+    function normalizeAssistanceCategoryLabel(category) {
+        if (category === 'Sport Materials') {
+            return 'Sport Material';
+        }
+        if (category === 'Medical Items') {
+            return 'Medical Item';
+        }
+        return category;
+    }
+
     function getAssistanceBaseOptions() {
-        return assistanceTypeTree.flatMap(node => {
-            const children = Array.isArray(node.children) ? node.children : [];
-            if (!children.length) {
-                return [node.category];
-            }
-            return children.map(child => `${node.category} - ${child}`);
-        });
+        const valueType = getCurrentValueType();
+        const allowedCategories = assistanceFilterAllowedCategoriesByValueType[valueType] || new Set();
+
+        return assistanceTypeTree
+            .flatMap(function(node) {
+                const normalizedCategory = normalizeAssistanceCategoryLabel(node.category);
+                if (!allowedCategories.has(normalizedCategory)) {
+                    return [];
+                }
+
+                const children = Array.isArray(node.children) ? node.children : [];
+                if (!children.length) {
+                    return [normalizedCategory];
+                }
+                return children.map(function(child) { return normalizedCategory + ' - ' + child; });
+            });
+    }
+
+    function getCustomItemFilterOptions() {
+        if (getCurrentValueType() !== 'item') {
+            return [];
+        }
+
+        return records
+            .map(record => String(record.assistance || '').trim())
+            .filter(assistance => assistance.startsWith(ITEM_FILTER_PREFIX));
     }
 
     function getAssistanceFilterOptions() {
-        const fromTree = getAssistanceBaseOptions();
-        const fromRecords = records
-            .map(record => String(record.assistance || '').trim())
-            .filter(Boolean);
-        return uniqueSorted([...fromTree, ...fromRecords]);
+        return uniqueSorted([
+            ...getAssistanceBaseOptions(),
+            ...getCustomItemFilterOptions()
+        ]);
     }
 
     function refreshAssistanceFilterOptions() {
@@ -787,6 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (valueTypeSelect) {
         valueTypeSelect.addEventListener('change', () => {
+            syncEditValueFieldByType();
             loadRecords();
             applyFilters();
         });
@@ -837,12 +776,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Other buttons
-    if (helpBtn) {
-        helpBtn.addEventListener('click', () => {
-            showToast('Need help? Contact IT support at support@manila.gov.ph', 'info');
-        });
-    }
-
     // Helper functions
     function populateSelect(select, items, placeholder) {
         select.innerHTML = `<option value="">${placeholder}</option>` + items
@@ -880,6 +813,91 @@ document.addEventListener('DOMContentLoaded', () => {
             .replace(/barangay\s*/i, '')
             .trim()
             .toUpperCase();
+    }
+
+    function getFirestoreFieldString(fields, key) {
+        const field = fields && fields[key];
+        if (!field) return '';
+        if (typeof field.stringValue === 'string') return field.stringValue;
+        if (typeof field.integerValue === 'string') return field.integerValue;
+        if (typeof field.doubleValue === 'number') return String(field.doubleValue);
+        return '';
+    }
+
+    function mapFirebaseSolicitationDoc(doc, valueType, index) {
+        const fields = doc?.fields || {};
+        const firebaseDocId = String(doc?.name || '').split('/').pop() || '';
+        const zone = normalizeZone(getFirestoreFieldString(fields, 'zone'));
+        const barangay = normalizeBarangay(getFirestoreFieldString(fields, 'barangay'));
+        const chairman = String(getFirestoreFieldString(fields, 'chairman') || 'N/A').trim() || 'N/A';
+        const solicitor = String(getFirestoreFieldString(fields, 'solicitor') || 'N/A').trim() || 'N/A';
+        const assistance = String(
+            getFirestoreFieldString(fields, 'assistance') ||
+            getFirestoreFieldString(fields, 'assistance tyoe') ||
+            getFirestoreFieldString(fields, 'assistanceType')
+        ).trim();
+        const date = String(getFirestoreFieldString(fields, 'date')).trim();
+        const status = String(getFirestoreFieldString(fields, 'status') || 'pending').trim() || 'pending';
+
+        const mapped = {
+            id: index + 1,
+            sourceRecordId: firebaseDocId,
+            zone,
+            barangay,
+            chairman,
+            solicitor,
+            assistance,
+            date,
+            status
+        };
+
+        if (valueType === 'amount') {
+            mapped.amount = getFirestoreFieldString(fields, 'amount');
+            mapped.item = null;
+        } else {
+            mapped.item = getFirestoreFieldString(fields, 'quantity') || getFirestoreFieldString(fields, 'item');
+            mapped.amount = null;
+        }
+
+        return mapped;
+    }
+
+    async function fetchFirebaseSolicitationCollection(collectionName, valueType) {
+        const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/${encodeURIComponent(collectionName)}?key=${FIREBASE_API_KEY}`;
+        const response = await fetch(url, { method: 'GET' });
+        if (!response.ok) {
+            const details = await response.text();
+            throw new Error(`Fetch ${collectionName} failed (${response.status}): ${details}`);
+        }
+
+        const payload = await response.json();
+        const docs = Array.isArray(payload.documents) ? payload.documents : [];
+        return docs.map((doc, index) => mapFirebaseSolicitationDoc(doc, valueType, index));
+    }
+
+    async function syncSolicitationCollectionsFromFirebase() {
+        try {
+            const [amountRecordsFromFirebase, itemRecordsFromFirebase] = await Promise.all([
+                fetchFirebaseSolicitationCollection('amount', 'amount'),
+                fetchFirebaseSolicitationCollection('quantity', 'item')
+            ]);
+
+            localStorage.setItem('solicitationAmountRecords', JSON.stringify(amountRecordsFromFirebase));
+            localStorage.setItem('solicitationItemRecords', JSON.stringify(itemRecordsFromFirebase));
+
+            const mergedRecords = [...amountRecordsFromFirebase, ...itemRecordsFromFirebase].map((record, index) => ({
+                ...record,
+                id: index + 1
+            }));
+            localStorage.setItem('solicitationRecords', JSON.stringify(mergedRecords));
+
+            loadRecords();
+            applyFilters();
+            showToast('Synced amount and quantity from Firebase', 'success');
+        } catch (error) {
+            console.error('Failed to sync Firebase amount/quantity:', error);
+            showToast('Using local records (Firebase sync failed)', 'info');
+        }
     }
 
     function formatDate(dateString) {
@@ -941,10 +959,8 @@ Status: ${capitalizeFirst(record.status)}`;
         records = getRecordsFromCurrentStorage();
         const record = records.find(r => r.id === id);
         if (record) {
-            if (getCurrentValueType() === 'item') {
-                showToast('Quantity table edit is not available in this modal yet.', 'info');
-                return;
-            }
+            const isItemType = getCurrentValueType() === 'item';
+            syncEditValueFieldByType();
 
             // Populate form fields
             document.getElementById('editId').value = record.id;
@@ -955,7 +971,9 @@ Status: ${capitalizeFirst(record.status)}`;
             if (editAssistanceInput) {
                 editAssistanceInput.value = String(record.assistance || '').trim();
             }
-            document.getElementById('editAmount').value = record.amount;
+            document.getElementById('editAmount').value = isItemType
+                ? String(record.item || '').trim()
+                : String(record.amount ?? '').trim();
             document.getElementById('editDate').value = record.date;
             document.getElementById('editStatus').value = record.status;
 
@@ -990,8 +1008,8 @@ Status: ${capitalizeFirst(record.status)}`;
 
             const zoneValue = String(document.getElementById('editZone').value || '').trim();
             const barangayValue = String(document.getElementById('editBarangay').value || '').trim();
-            const amountValue = String(document.getElementById('editAmount').value || '').trim();
-            const quantityValue = editQuantityInput ? String(editQuantityInput.value || '').trim() : '';
+            const valueInput = String(document.getElementById('editAmount').value || '').trim();
+            const isItemType = getCurrentValueType() === 'item';
             const chairmanValue = String(document.getElementById('editChairman').value || '').trim();
             const solicitorValue = String(document.getElementById('editSolicitor').value || '').trim();
             const assistanceValue = String(document.getElementById('editAssistance').value || '').trim();
@@ -1006,13 +1024,8 @@ Status: ${capitalizeFirst(record.status)}`;
                 return;
             }
 
-            if (amountValue && !/^\d+(\.\d+)?$/.test(amountValue)) {
-                showToast('Amount can only contain numbers.', 'error');
-                return;
-            }
-
-            if (quantityValue && !/^\d+(\.\d+)?$/.test(quantityValue)) {
-                showToast('Quantity can only contain numbers.', 'error');
+            if (valueInput && !/^\d+(\.\d+)?$/.test(valueInput)) {
+                showToast(isItemType ? 'Quantity can only contain numbers.' : 'Amount can only contain numbers.', 'error');
                 return;
             }
 
@@ -1044,7 +1057,8 @@ Status: ${capitalizeFirst(record.status)}`;
                     chairman: document.getElementById('editChairman').value,
                     solicitor: document.getElementById('editSolicitor').value,
                     assistance: String(document.getElementById('editAssistance').value || '').trim(),
-                    amount: parseFloat(document.getElementById('editAmount').value),
+                    amount: isItemType ? null : parseFloat(valueInput),
+                    item: isItemType ? valueInput : null,
                     date: document.getElementById('editDate').value,
                     status: document.getElementById('editStatus').value
                 };
@@ -1186,6 +1200,14 @@ Status: ${capitalizeFirst(record.status)}`;
             dropdown.classList.remove('show');
             wrapper.classList.remove('active');
             selectedIndex = -1;
+
+             if (input.id === 'filterAssistance' && value === ITEM_FILTER_PREFIX) {
+                setTimeout(function() {
+                    input.focus();
+                    input.setSelectionRange(ITEM_FILTER_PREFIX.length, ITEM_FILTER_PREFIX.length);
+                }, 0);
+            }
+
             if (typeof onSelect === 'function') {
                 onSelect(value);
             }

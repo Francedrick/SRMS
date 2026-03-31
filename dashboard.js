@@ -5,7 +5,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const navItems = document.querySelectorAll('.nav-item');
     const logoutBtn = document.getElementById('logoutBtn');
     const ctaGetStarted = document.getElementById('ctaGetStarted');
-    const helpBtn = document.getElementById('helpBtn');
+    const mostRequestedRange = document.getElementById('mostRequestedRange');
+    const userNameEl = document.querySelector('.user-name');
+    const userRoleEl = document.querySelector('.user-role');
+    const STORAGE_KEYS_TO_WATCH = new Set([
+        'solicitationRecords',
+        'solicitationAmountRecords',
+        'solicitationItemRecords'
+    ]);
+    let dashboardRefreshIntervalId = null;
 
     // Page map for navigation
     const pageMap = {
@@ -18,8 +26,74 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Load and display statistics
+    hydrateUserProfile();
     loadDashboardStats();
     updateCurrentDate();
+    setupRealtimeDashboardUpdates();
+
+    if (mostRequestedRange) {
+        mostRequestedRange.addEventListener('change', () => {
+            loadDashboardStats();
+        });
+    }
+
+    function hydrateUserProfile() {
+        let sessionUser = null;
+        try {
+            sessionUser = JSON.parse(localStorage.getItem('user') || 'null');
+        } catch (error) {
+            sessionUser = null;
+        }
+
+        if (!sessionUser || typeof sessionUser !== 'object') {
+            sessionUser = {
+                username: 'Admin User',
+                role: 'Administrator',
+                loginTime: new Date().toISOString()
+            };
+            localStorage.setItem('user', JSON.stringify(sessionUser));
+        }
+
+        const displayName = String(sessionUser.username || sessionUser.name || 'Admin User').trim() || 'Admin User';
+        const displayRole = String(sessionUser.role || 'Administrator').trim() || 'Administrator';
+
+        if (userNameEl) {
+            userNameEl.textContent = displayName;
+        }
+        if (userRoleEl) {
+            userRoleEl.textContent = displayRole;
+        }
+    }
+
+    function setupRealtimeDashboardUpdates() {
+        const refreshDashboard = () => {
+            loadDashboardStats();
+            updateCurrentDate();
+        };
+
+        // Updates when another window/tab writes to localStorage.
+        window.addEventListener('storage', (event) => {
+            if (event && STORAGE_KEYS_TO_WATCH.has(event.key)) {
+                refreshDashboard();
+            }
+        });
+
+        // Keep data current even if updates happen from non-storage event sources.
+        dashboardRefreshIntervalId = window.setInterval(refreshDashboard, 3000);
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                refreshDashboard();
+            }
+        });
+
+        window.addEventListener('focus', refreshDashboard);
+        window.addEventListener('beforeunload', () => {
+            if (dashboardRefreshIntervalId !== null) {
+                window.clearInterval(dashboardRefreshIntervalId);
+            }
+        });
+    }
 
     function updateCurrentDate() {
         const dateElement = document.getElementById('currentDate');
@@ -104,37 +178,184 @@ document.addEventListener('DOMContentLoaded', () => {
         return Number.isFinite(numeric) ? numeric : 0;
     }
 
-    function updateMostRequestedItem(itemRecords) {
-        const mostRequestedItemEl = document.getElementById('mostRequestedItem');
-        const mostRequestedItemQtyEl = document.getElementById('mostRequestedItemQty');
-        if (!mostRequestedItemEl || !mostRequestedItemQtyEl) {
-            return;
+    function getRangeBounds(rangeKey, referenceDate = new Date()) {
+        const currentStart = new Date(referenceDate);
+        const currentEnd = new Date(referenceDate);
+        const previousStart = new Date(referenceDate);
+        const previousEnd = new Date(referenceDate);
+
+        if (rangeKey === 'today') {
+            currentStart.setHours(0, 0, 0, 0);
+            currentEnd.setTime(currentStart.getTime() + 24 * 60 * 60 * 1000);
+            previousEnd.setTime(currentStart.getTime());
+            previousStart.setTime(previousEnd.getTime() - 24 * 60 * 60 * 1000);
+            return { currentStart, currentEnd, previousStart, previousEnd, label: 'day' };
         }
 
-        if (!Array.isArray(itemRecords) || itemRecords.length === 0) {
-            mostRequestedItemEl.textContent = 'N/A';
-            mostRequestedItemQtyEl.textContent = '0 total quantity';
-            return;
+        if (rangeKey === 'year') {
+            currentStart.setMonth(0, 1);
+            currentStart.setHours(0, 0, 0, 0);
+            currentEnd.setFullYear(currentStart.getFullYear() + 1, 0, 1);
+            currentEnd.setHours(0, 0, 0, 0);
+            previousStart.setFullYear(currentStart.getFullYear() - 1, 0, 1);
+            previousStart.setHours(0, 0, 0, 0);
+            previousEnd.setTime(currentStart.getTime());
+            return { currentStart, currentEnd, previousStart, previousEnd, label: 'year' };
         }
 
+        currentStart.setDate(1);
+        currentStart.setHours(0, 0, 0, 0);
+        currentEnd.setMonth(currentStart.getMonth() + 1, 1);
+        currentEnd.setHours(0, 0, 0, 0);
+        previousStart.setMonth(currentStart.getMonth() - 1, 1);
+        previousStart.setHours(0, 0, 0, 0);
+        previousEnd.setTime(currentStart.getTime());
+
+        return { currentStart, currentEnd, previousStart, previousEnd, label: 'month' };
+    }
+
+    function sumItemQuantitiesByAssistance(records) {
         const itemMap = {};
-        itemRecords.forEach(record => {
+        records.forEach(record => {
             const itemKey = String(record.assistance || 'N/A').trim() || 'N/A';
             if (!itemMap[itemKey]) {
                 itemMap[itemKey] = 0;
             }
             itemMap[itemKey] += parseItemQuantity(record.item);
         });
+        return itemMap;
+    }
 
-        const topItemEntry = Object.entries(itemMap).sort((a, b) => b[1] - a[1])[0];
-        if (!topItemEntry) {
-            mostRequestedItemEl.textContent = 'N/A';
-            mostRequestedItemQtyEl.textContent = '0 total quantity';
+    function computePercentChange(currentValue, previousValue) {
+        const current = Number(currentValue) || 0;
+        const previous = Number(previousValue) || 0;
+
+        if (previous <= 0 && current <= 0) {
+            return 0;
+        }
+        if (previous <= 0 && current > 0) {
+            return 100;
+        }
+
+        return ((current - previous) / previous) * 100;
+    }
+
+    function animateMostRequestedQuantity(element, nextValue) {
+        if (!element) {
             return;
         }
 
-        mostRequestedItemEl.textContent = topItemEntry[0];
-        mostRequestedItemQtyEl.textContent = `${topItemEntry[1].toLocaleString('en-US')} total quantity`;
+        const targetValue = Math.max(0, Number(nextValue) || 0);
+        const startValue = Number(element.dataset.rawValue || 0);
+
+        if (element._countAnimationFrameId) {
+            window.cancelAnimationFrame(element._countAnimationFrameId);
+        }
+
+        if (startValue === targetValue) {
+            element.textContent = targetValue.toLocaleString('en-US');
+            element.dataset.rawValue = String(targetValue);
+            return;
+        }
+
+        const durationMs = 550;
+        const startedAt = performance.now();
+        const delta = targetValue - startValue;
+        const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+
+        const updateFrame = (now) => {
+            const elapsed = now - startedAt;
+            const progress = Math.min(elapsed / durationMs, 1);
+            const eased = easeOutCubic(progress);
+            const currentValue = Math.round(startValue + (delta * eased));
+
+            element.textContent = currentValue.toLocaleString('en-US');
+
+            if (progress < 1) {
+                element._countAnimationFrameId = window.requestAnimationFrame(updateFrame);
+            } else {
+                element.dataset.rawValue = String(targetValue);
+                element._countAnimationFrameId = null;
+            }
+        };
+
+        element.dataset.rawValue = String(targetValue);
+        element._countAnimationFrameId = window.requestAnimationFrame(updateFrame);
+    }
+
+    function animateMostRequestedItemName(element, labelText) {
+        if (!element) {
+            return;
+        }
+
+        const nextLabel = String(labelText || 'N/A');
+        const previousLabel = element.textContent;
+        element.textContent = nextLabel;
+
+        if (previousLabel !== nextLabel) {
+            element.classList.remove('item-switch');
+            void element.offsetWidth;
+            element.classList.add('item-switch');
+        }
+    }
+
+    function updateMostRequestedItem(itemRecords) {
+        const mostRequestedItemEl = document.getElementById('mostRequestedItem');
+        const mostRequestedItemQtyEl = document.getElementById('mostRequestedItemQty');
+        const mostRequestedProgressEl = document.getElementById('mostRequestedProgress');
+        if (!mostRequestedItemEl || !mostRequestedItemQtyEl) {
+            return;
+        }
+
+        const selectedRange = mostRequestedRange ? mostRequestedRange.value : 'month';
+        const rangeBounds = getRangeBounds(selectedRange, new Date());
+        const hasValidDate = (recordDate) => Number.isFinite(recordDate.getTime());
+        const isWithin = (recordDate, start, end) => recordDate >= start && recordDate < end;
+
+        const sourceRecords = Array.isArray(itemRecords) ? itemRecords : [];
+        const currentRangeRecords = sourceRecords.filter(record => {
+            const recordDate = new Date(record.date);
+            return hasValidDate(recordDate) && isWithin(recordDate, rangeBounds.currentStart, rangeBounds.currentEnd);
+        });
+
+        const previousRangeRecords = sourceRecords.filter(record => {
+            const recordDate = new Date(record.date);
+            return hasValidDate(recordDate) && isWithin(recordDate, rangeBounds.previousStart, rangeBounds.previousEnd);
+        });
+
+        if (currentRangeRecords.length === 0) {
+            animateMostRequestedItemName(mostRequestedItemEl, 'N/A');
+            animateMostRequestedQuantity(mostRequestedItemQtyEl, 0);
+            if (mostRequestedProgressEl) {
+                mostRequestedProgressEl.style.width = '0%';
+            }
+            return;
+        }
+
+        const currentItemMap = sumItemQuantitiesByAssistance(currentRangeRecords);
+
+        const topItemEntry = Object.entries(currentItemMap).sort((a, b) => b[1] - a[1])[0];
+        if (!topItemEntry) {
+            animateMostRequestedItemName(mostRequestedItemEl, 'N/A');
+            animateMostRequestedQuantity(mostRequestedItemQtyEl, 0);
+            if (mostRequestedProgressEl) {
+                mostRequestedProgressEl.style.width = '0%';
+            }
+            return;
+        }
+
+        animateMostRequestedItemName(mostRequestedItemEl, topItemEntry[0]);
+        animateMostRequestedQuantity(mostRequestedItemQtyEl, topItemEntry[1]);
+
+        const previousItemMap = sumItemQuantitiesByAssistance(previousRangeRecords);
+        const previousQuantity = previousItemMap[topItemEntry[0]] || 0;
+        const currentQuantity = topItemEntry[1];
+        const changePercent = computePercentChange(currentQuantity, previousQuantity);
+
+        if (mostRequestedProgressEl) {
+            const progressWidth = Math.min(Math.abs(changePercent), 100);
+            mostRequestedProgressEl.style.width = `${progressWidth}%`;
+        }
     }
 
     function updateRecentRecords(amountRecords, itemRecords) {
@@ -290,17 +511,4 @@ document.addEventListener('DOMContentLoaded', () => {
         ipcRenderer.send('navigate', 'new-solicitation.html');
     });
 
-    // Help button
-    helpBtn.addEventListener('click', () => {
-        alert('Help & Support\n\nFor assistance, please contact:\nEmail: support@manila.gov.ph\nPhone: (02) 1234-5678\n\nOffice Hours: Mon-Fri, 8AM-5PM');
-    });
-
-    // Store user session
-    if (!localStorage.getItem('user')) {
-        localStorage.setItem('user', JSON.stringify({
-            name: 'Admin User',
-            role: 'Administrator',
-            loginTime: new Date().toISOString()
-        }));
-    }
 });

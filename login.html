@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file:; font-src 'self' data:;">
-    <base href="file:///C:/Users/franc/Downloads/Solicitation/">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file: asar:; font-src 'self' data: file: asar:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com;">
     <title>Sign In - Solicitation Management System</title>
-    <link rel="stylesheet" href="styles/styles.css">
-    <link rel="stylesheet" href="styles/login.css">
-    <link rel="stylesheet" href="node_modules/toastify-js/src/toastify.css">
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="stylesheet" href="../styles/login.css">
+    <link rel="stylesheet" href="../node_modules/toastify-js/src/toastify.css">
 </head>
 <body>
     <div class="login-container">
         <!-- Animated Background -->
         <div class="background-wrapper">
-            <img src="assets/images/background.jpeg" 
+            <img src="../assets/images/background.jpeg" 
                  alt="Background" class="background-image">
             <div class="background-overlay"></div>
             <div class="mesh-gradient"></div>
@@ -28,7 +27,7 @@
             <div class="logo-section">
                 <div class="logo-wrapper">
                     <div class="logo-inner">
-                        <img src="assets/images/logo.png" alt="Logo" class="logo-image">
+                        <img src="../assets/images/logo.png" alt="Logo" class="logo-image">
                     </div>
                 </div>
                 <div class="logo-text">
@@ -39,7 +38,6 @@
             <div class="nav-links">
                 <a href="#" class="nav-link">About</a>
                 <a href="#" class="nav-link">Contact</a>
-                <a href="#" class="nav-link">Help</a>
             </div>
         </div>
 
@@ -140,7 +138,7 @@
                     </form>
                 </div>
                 
-                <!-- Floating decorative elements -->
+                <!-- F  loating decorative elements -->
                 <div class="float-decoration float-decoration-1"></div>
                 <div class="float-decoration float-decoration-2"></div>
             </div>
@@ -153,8 +151,37 @@
         </div>
 
     </div>
+
+    <div class="forgot-modal" id="forgotPasswordModal" aria-hidden="true">
+        <div class="forgot-modal-card" role="dialog" aria-modal="true" aria-labelledby="forgotModalTitle">
+            <button type="button" class="forgot-modal-close" id="forgotModalClose" aria-label="Close">&times;</button>
+            <h3 class="forgot-modal-title" id="forgotModalTitle">Reset Password</h3>
+            <p class="forgot-modal-subtitle">Verify your username and current password, then set a new password.</p>
+
+            <form id="forgotPasswordForm" class="forgot-modal-form">
+                <div id="forgotStepVerify">
+                    <label class="forgot-label" for="forgotUsername">Username</label>
+                    <input type="text" id="forgotUsername" class="forgot-input" placeholder="Enter your username" required>
+                    <label class="forgot-label" for="forgotCurrentPassword">Current Password</label>
+                    <input type="password" id="forgotCurrentPassword" class="forgot-input" placeholder="Enter current password" required>
+                    <button type="button" class="forgot-btn forgot-btn-primary" id="forgotVerifyBtn">Verify Credentials</button>
+                </div>
+
+                <div id="forgotStepReset" class="forgot-hidden">
+                    <p class="forgot-verified-user">Verified user: <strong id="forgotVerifiedUsername">-</strong></p>
+                    <label class="forgot-label" for="forgotNewPassword">New Password</label>
+                    <input type="password" id="forgotNewPassword" class="forgot-input" placeholder="Enter new password" minlength="6" required>
+                    <label class="forgot-label" for="forgotConfirmPassword">Confirm Password</label>
+                    <input type="password" id="forgotConfirmPassword" class="forgot-input" placeholder="Confirm new password" minlength="6" required>
+                    <button type="submit" class="forgot-btn forgot-btn-primary">Update Password</button>
+                </div>
+
+                <button type="button" class="forgot-btn forgot-btn-secondary" id="forgotCancelBtn">Cancel</button>
+            </form>
+        </div>
+    </div>
     
-    <script src="scripts/login.js"></script>
+    <script src="../scripts/login.js"></script>
 </body>
 </html>
 

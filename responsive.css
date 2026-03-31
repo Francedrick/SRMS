@@ -1,0 +1,284 @@
+/* Shared responsive rules for setup app pages */
+
+.dashboard-container {
+    min-height: 100vh;
+    height: 100dvh;
+}
+
+.main-content {
+    min-width: 0;
+}
+
+.content-area {
+    min-width: 0;
+}
+
+.table-container,
+.recent-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.records-table,
+.reports-table,
+.recent-table {
+    min-width: 860px;
+}
+
+.form-row {
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.amount-item-inline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.filters-grid {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+@media (max-width: 1366px) {
+    .content-area {
+        padding: 22px 24px;
+    }
+
+    .top-header {
+        padding: 14px 18px;
+    }
+
+    .header-title {
+        font-size: 17px;
+    }
+
+    .page-title {
+        font-size: 26px;
+    }
+
+    .page-subtitle {
+        font-size: 15px;
+    }
+
+    .form-field label,
+    .amount-item-labels label {
+        font-size: 16px;
+    }
+
+    .form-field input[type="text"],
+    .form-field input[type="number"],
+    .form-field input[type="date"],
+    .form-field select,
+    .autocomplete-wrapper input,
+    .assistance-tree-wrapper input,
+    .search-container input,
+    .filter-field select,
+    .filter-field input,
+    .filter-controls select,
+    .list-year-filter,
+    .value-type-select,
+    .report-value-type-select,
+    .summary-value-type-select {
+        font-size: 15px;
+        min-height: 44px;
+    }
+
+    .btn-submit,
+    .btn-cancel,
+    .btn-export,
+    .btn-refresh,
+    .add-btn,
+    .chip,
+    .btn-apply,
+    .footer-btn {
+        font-size: 15px;
+        min-height: 42px;
+    }
+
+    .records-table th,
+    .records-table td,
+    .reports-table th,
+    .reports-table td,
+    .recent-table th,
+    .recent-table td {
+        font-size: 15px;
+        padding: 12px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 84px;
+        padding: 14px 0;
+    }
+
+    .sidebar-header {
+        padding: 0 8px 18px;
+        justify-content: center;
+    }
+
+    .sidebar-title,
+    .nav-item span,
+    .nav-arrow,
+    .logout-btn span {
+        display: none;
+    }
+
+    .preview-image-small {
+        width: 52px;
+        height: 52px;
+    }
+
+    .sidebar-nav {
+        padding: 0 8px;
+    }
+
+    .nav-item {
+        justify-content: center;
+        padding: 12px;
+    }
+
+    .nav-icon {
+        margin-right: 0;
+    }
+
+    .logout-btn {
+        width: 52px;
+        min-width: 52px;
+        padding: 12px;
+    }
+
+    .logout-icon {
+        margin-right: 0;
+    }
+
+    .header-right {
+        gap: 8px;
+    }
+
+    .user-info {
+        display: none;
+    }
+
+    .list-header,
+    .records-header,
+    .reports-header,
+    .summary-header {
+        gap: 12px;
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .list-header-actions,
+    .header-actions,
+    .reports-actions,
+    .summary-actions,
+    .filter-controls,
+    .form-actions {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .list-header-actions > *,
+    .header-actions > *,
+    .reports-actions > *,
+    .summary-actions > *,
+    .filter-controls > *,
+    .form-actions > * {
+        flex: 1 1 200px;
+    }
+
+    .btn-submit,
+    .btn-cancel {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        overflow: auto;
+    }
+
+    .dashboard-container {
+        height: auto;
+        min-height: 100vh;
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        padding: 10px;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        overflow-x: auto;
+    }
+
+    .sidebar-header {
+        padding: 0;
+        flex-shrink: 0;
+    }
+
+    .sidebar-nav {
+        display: flex;
+        flex-direction: row;
+        gap: 6px;
+        overflow-x: auto;
+        padding: 0;
+        min-width: 0;
+    }
+
+    .nav-item {
+        min-width: 44px;
+        padding: 10px;
+        margin: 0;
+    }
+
+    .logout-btn {
+        margin: 0 0 0 auto;
+        flex-shrink: 0;
+    }
+
+    .top-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .header-left,
+    .header-right,
+    .user-profile {
+        width: 100%;
+    }
+
+    .header-right {
+        justify-content: flex-end;
+    }
+
+    .content-area {
+        padding: 16px;
+    }
+
+    .form-container,
+    .solicitation-form,
+    .table-card,
+    .table-container,
+    .filters-section,
+    .records-footer,
+    .calendar-card {
+        border-radius: 12px;
+    }
+
+    .form-row,
+    .amount-item-inline,
+    .amount-item-labels,
+    .stat-cards,
+    .donut-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .records-table,
+    .reports-table,
+    .recent-table {
+        min-width: 700px;
+    }
+}

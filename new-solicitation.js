@@ -2,16 +2,104 @@
 const { ipcRenderer } = require('electron');
 const Toastify = require('toastify-js');
 
+const FIREBASE_PROJECT_ID = 'solicitation-record-management';
+const FIREBASE_API_KEY = 'AIzaSyBKWo_Cwk0ZviijLJ5OU1a8Ym1r6e-6p8o';
+
 console.log('=== NEW SOLICITATION JS LOADED ===');
 console.log('ipcRenderer available:', !!ipcRenderer);
 
 document.addEventListener('DOMContentLoaded', () => {
+        function toFirestoreStringValue(value) {
+            return { stringValue: String(value ?? '').trim() };
+        }
+
+        async function createFirebaseAmountRecord(payload) {
+            const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/amount?key=${FIREBASE_API_KEY}`;
+
+            const body = {
+                fields: {
+                    zone: toFirestoreStringValue(`Zone ${payload.zone}`),
+                    barangay: toFirestoreStringValue(`Barangay ${payload.barangay}`),
+                    chairman: toFirestoreStringValue(payload.chairman || 'N/A'),
+                    solicitor: toFirestoreStringValue(payload.solicitor || 'N/A'),
+                    assistance: toFirestoreStringValue(payload.assistanceType || ''),
+                    'assistance tyoe': toFirestoreStringValue(payload.assistanceType || ''),
+                    amount: toFirestoreStringValue(payload.amount),
+                    date: toFirestoreStringValue(payload.date || ''),
+                    status: toFirestoreStringValue(payload.status || 'pending')
+                }
+            };
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (!response.ok) {
+                const details = await response.text();
+                throw new Error(`Firebase amount save failed (${response.status}): ${details}`);
+            }
+
+            return response.json();
+        }
+
+        async function createFirebaseQuantityRecord(payload) {
+            const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/quantity?key=${FIREBASE_API_KEY}`;
+
+            const body = {
+                fields: {
+                    zone: toFirestoreStringValue(`Zone ${payload.zone}`),
+                    barangay: toFirestoreStringValue(`Barangay ${payload.barangay}`),
+                    chairman: toFirestoreStringValue(payload.chairman || 'N/A'),
+                    solicitor: toFirestoreStringValue(payload.solicitor || 'N/A'),
+                    assistance: toFirestoreStringValue(payload.assistanceType || ''),
+                    'assistance tyoe': toFirestoreStringValue(payload.assistanceType || ''),
+                    quantity: toFirestoreStringValue(payload.quantity),
+                    date: toFirestoreStringValue(payload.date || ''),
+                    status: toFirestoreStringValue(payload.status || 'pending')
+                }
+            };
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (!response.ok) {
+                const details = await response.text();
+                throw new Error(`Firebase quantity save failed (${response.status}): ${details}`);
+            }
+
+            return response.json();
+        }
+
     console.log('=== NEW SOLICITATION PAGE LOADED ===');
+
+    const userNameEl = document.querySelector('.user-name');
+    const userRoleEl = document.querySelector('.user-role');
+
+    function hydrateUserProfile() {
+        let sessionUser = null;
+        try {
+            sessionUser = JSON.parse(localStorage.getItem('user') || 'null');
+        } catch (error) {
+            sessionUser = null;
+        }
+
+        const displayName = String(sessionUser?.username || sessionUser?.name || 'Admin User').trim() || 'Admin User';
+        const displayRole = String(sessionUser?.role || 'Administrator').trim() || 'Administrator';
+
+        if (userNameEl) userNameEl.textContent = displayName;
+        if (userRoleEl) userRoleEl.textContent = displayRole;
+    }
+
+    hydrateUserProfile();
     
     const solicitationForm = document.getElementById('solicitationForm');
     const cancelBtn = document.getElementById('cancelBtn');
     const logoutBtn = document.getElementById('logoutBtn');
-    const helpBtn = document.getElementById('helpBtn');
     const navItems = document.querySelectorAll('.nav-item');
     
     console.log('Found nav items:', navItems.length);
@@ -75,11 +163,11 @@ document.addEventListener('DOMContentLoaded', () => {
             children: ['Wedding', 'Christening', 'Birthday']
         },
         {
-            category: 'Sport Materials',
+            category: 'Sport Material',
             children: ['Volley Ball', 'Basket Ball', 'Badminton', 'Chess', 'Dart']
         },
         {
-            category: 'Medical Items',
+            category: 'Medical Item',
             children: ['Wheel Chair', 'Saklay', 'BP', 'Nebulizer', 'Baby Kit']
         },
         {
@@ -110,6 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const expandedAssistanceCategories = new Set();
     let isCustomAssistanceType = false;
+    const CUSTOM_ITEM_PREFIX = 'Item - ';
 
     const ItemAmountMode = {
         AMOUNT_ONLY: 'amount-only',
@@ -119,19 +208,19 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const assistanceItemAmountRules = {
-        'Event - Wedding': ItemAmountMode.AMOUNT_ONLY,
-        'Event - Christening': ItemAmountMode.AMOUNT_ONLY,
-        'Event - Birthday': ItemAmountMode.AMOUNT_ONLY,
-        'Sport Materials - Volley Ball': ItemAmountMode.ITEM_ONLY,
-        'Sport Materials - Basket Ball': ItemAmountMode.ITEM_ONLY,
-        'Sport Materials - Badminton': ItemAmountMode.ITEM_ONLY,
-        'Sport Materials - Chess': ItemAmountMode.ITEM_ONLY,
-        'Sport Materials - Dart': ItemAmountMode.ITEM_ONLY,
-        'Medical Items - Wheel Chair': ItemAmountMode.ITEM_OR_AMOUNT,
-        'Medical Items - Saklay': ItemAmountMode.ITEM_OR_AMOUNT,
-        'Medical Items - BP': ItemAmountMode.ITEM_OR_AMOUNT,
-        'Medical Items - Nebulizer': ItemAmountMode.ITEM_OR_AMOUNT,
-        'Medical Items - Baby Kit': ItemAmountMode.ITEM_OR_AMOUNT,
+        'Event - Wedding': ItemAmountMode.ITEM_AND_AMOUNT,
+        'Event - Christening': ItemAmountMode.ITEM_AND_AMOUNT,
+        'Event - Birthday': ItemAmountMode.ITEM_AND_AMOUNT,
+        'Sport Material - Volley Ball': ItemAmountMode.ITEM_ONLY,
+        'Sport Material - Basket Ball': ItemAmountMode.ITEM_ONLY,
+        'Sport Material - Badminton': ItemAmountMode.ITEM_ONLY,
+        'Sport Material - Chess': ItemAmountMode.ITEM_ONLY,
+        'Sport Material - Dart': ItemAmountMode.ITEM_ONLY,
+        'Medical Item - Wheel Chair': ItemAmountMode.ITEM_OR_AMOUNT,
+        'Medical Item - Saklay': ItemAmountMode.ITEM_OR_AMOUNT,
+        'Medical Item - BP': ItemAmountMode.ITEM_OR_AMOUNT,
+        'Medical Item - Nebulizer': ItemAmountMode.ITEM_OR_AMOUNT,
+        'Medical Item - Baby Kit': ItemAmountMode.ITEM_OR_AMOUNT,
         'Optical - Reading Glasses': ItemAmountMode.ITEM_AND_AMOUNT,
         'Optical - Cataract Patient': ItemAmountMode.ITEM_AND_AMOUNT,
         'Animal Assistance - Anti Rabies': ItemAmountMode.AMOUNT_ONLY,
@@ -207,17 +296,17 @@ document.addEventListener('DOMContentLoaded', () => {
         isCustomAssistanceType = isEditable;
         assistanceTypeInput.readOnly = !isEditable;
         assistanceTypeInput.placeholder = isEditable
-            ? 'Type Assistance Type'
+            ? 'Indicate example item (e.g. Item - Rice)'
             : 'Select Assistance Type';
 
         if (isEditable) {
-            assistanceTypeInput.value = String(assistanceTypeInput.value || '').replace(/[^A-Za-z\s]/g, '');
+            assistanceTypeInput.value = sanitizeLettersOnly(assistanceTypeInput.value);
         }
     }
 
     function getCurrentItemAmountMode(selectedAssistanceType) {
         if (isCustomAssistanceType) {
-            return ItemAmountMode.ITEM_OR_AMOUNT;
+            return ItemAmountMode.ITEM_ONLY;
         }
 
         const key = String(selectedAssistanceType || '').trim();
@@ -267,11 +356,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function selectAssistanceType(value, category = '') {
         if (!category && (value === 'Item' || value === 'Quantity')) {
             setAssistanceTypeEditable(true);
-            assistanceTypeInput.value = '';
+            assistanceTypeInput.value = CUSTOM_ITEM_PREFIX;
             assistanceTypeDropdown.classList.remove('show');
             assistanceTypeWrapper.classList.remove('active');
             applyItemAmountMode('');
-            setTimeout(() => assistanceTypeInput.focus(), 0);
+            setTimeout(() => {
+                assistanceTypeInput.focus();
+                const cursorPosition = assistanceTypeInput.value.length;
+                assistanceTypeInput.setSelectionRange(cursorPosition, cursorPosition);
+            }, 0);
             return;
         }
 
@@ -407,8 +500,43 @@ document.addEventListener('DOMContentLoaded', () => {
             .toUpperCase();
     }
 
+    // Allows letters, spaces, dots, hyphens, and apostrophes (valid in names, e.g. "Jr.", "Santos-Cruz")
     function sanitizeLettersOnly(value) {
-        return String(value || '').replace(/[^A-Za-z\s]/g, '');
+        return String(value || '').replace(/[^A-Za-z\s.\-']/g, '');
+    }
+
+    // beforeinput fires for ALL insertion methods (keyboard, paste, drag-drop, autofill)
+    // and is the most reliable way to block characters before they appear.
+    function blockSpecialCharsBeforeInput(event) {
+        const data = event.data;
+        if (data && /[^A-Za-z\s.\-']/.test(data)) {
+            event.preventDefault();
+        }
+    }
+
+    function handlePasteLettersOnly(event) {
+        event.preventDefault();
+        const text = (event.clipboardData || window.clipboardData).getData('text');
+        const sanitized = sanitizeLettersOnly(text);
+        const input = event.target;
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        input.value = input.value.slice(0, start) + sanitized + input.value.slice(end);
+        input.selectionStart = input.selectionEnd = start + sanitized.length;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+
+    function handleDropLettersOnly(event) {
+        event.preventDefault();
+        const text = event.dataTransfer.getData('text');
+        const sanitized = sanitizeLettersOnly(text);
+        const input = event.target;
+        input.focus();
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+        input.value = input.value.slice(0, start) + sanitized + input.value.slice(end);
+        input.selectionStart = input.selectionEnd = start + sanitized.length;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
     }
 
     function sanitizeNumericOnly(value) {
@@ -535,11 +663,17 @@ document.addEventListener('DOMContentLoaded', () => {
         syncChairmanFromBarangay(false);
     });
 
+    chairmanInput.addEventListener('beforeinput', blockSpecialCharsBeforeInput);
+    chairmanInput.addEventListener('paste', handlePasteLettersOnly);
+    chairmanInput.addEventListener('drop', handleDropLettersOnly);
     chairmanInput.addEventListener('input', () => {
         chairmanInput.value = sanitizeLettersOnly(chairmanInput.value);
     });
 
     const solicitorInput = document.getElementById('solicitor');
+    solicitorInput.addEventListener('beforeinput', blockSpecialCharsBeforeInput);
+    solicitorInput.addEventListener('paste', handlePasteLettersOnly);
+    solicitorInput.addEventListener('drop', handleDropLettersOnly);
     solicitorInput.addEventListener('input', () => {
         solicitorInput.value = sanitizeLettersOnly(solicitorInput.value);
     });
@@ -552,6 +686,21 @@ document.addEventListener('DOMContentLoaded', () => {
         amountInput.value = sanitizeDecimal(amountInput.value);
     });
 
+    assistanceTypeInput.addEventListener('beforeinput', (event) => {
+        if (isCustomAssistanceType) {
+            blockSpecialCharsBeforeInput(event);
+        }
+    });
+    assistanceTypeInput.addEventListener('paste', (event) => {
+        if (isCustomAssistanceType) {
+            handlePasteLettersOnly(event);
+        }
+    });
+    assistanceTypeInput.addEventListener('drop', (event) => {
+        if (isCustomAssistanceType) {
+            handleDropLettersOnly(event);
+        }
+    });
     assistanceTypeInput.addEventListener('input', () => {
         if (isCustomAssistanceType) {
             assistanceTypeInput.value = sanitizeLettersOnly(assistanceTypeInput.value);
@@ -748,7 +897,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Form submission
-    solicitationForm.addEventListener('submit', (e) => {
+    solicitationForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         console.log('Form submit event triggered');
         console.log('Form validity:', solicitationForm.checkValidity());
@@ -827,27 +976,60 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (!/^[A-Za-z\s]+$/.test(String(formData.chairman || '').trim()) ||
-            !/^[A-Za-z\s]+$/.test(String(formData.solicitor || '').trim())) {
-            showToast('Chairman and Solicitor must contain letters only', 'error');
-            isSubmitting = false;
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = '1';
-                submitBtn.style.cursor = 'pointer';
+        if (!/^[A-Za-z\s.\-']+$/.test(String(formData.chairman || '').trim()) ||
+            !/^[A-Za-z\s.\-']+$/.test(String(formData.solicitor || '').trim())) {
+            // Sanitize in-place and update the DOM inputs
+            formData.chairman = sanitizeLettersOnly(formData.chairman).trim();
+            formData.solicitor = sanitizeLettersOnly(formData.solicitor).trim();
+            document.getElementById('chairman').value = formData.chairman;
+            document.getElementById('solicitor').value = formData.solicitor;
+
+            if (!formData.chairman || !formData.solicitor) {
+                showToast('Chairman and Solicitor must contain letters only', 'error');
+                isSubmitting = false;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                    submitBtn.style.cursor = 'pointer';
+                }
+                return;
             }
-            return;
         }
 
-        if (isCustomAssistanceType && !/^[A-Za-z\s]+$/.test(String(formData.assistanceType || '').trim())) {
-            showToast('Assistance Type must contain letters only', 'error');
-            isSubmitting = false;
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.style.opacity = '1';
-                submitBtn.style.cursor = 'pointer';
+        if (isCustomAssistanceType && !/^[A-Za-z\s.\-']+$/.test(String(formData.assistanceType || '').trim())) {
+            formData.assistanceType = sanitizeLettersOnly(formData.assistanceType).trim();
+            assistanceTypeInput.value = formData.assistanceType;
+
+            if (!formData.assistanceType) {
+                showToast('Assistance Type must contain letters only', 'error');
+                isSubmitting = false;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                    submitBtn.style.cursor = 'pointer';
+                }
+                return;
             }
-            return;
+        }
+
+        if (isCustomAssistanceType) {
+            const customItemText = String(formData.assistanceType || '')
+                .replace(/^Item\s*-\s*/i, '')
+                .trim();
+
+            if (!customItemText) {
+                showToast('Please indicate example item in Assistance Type (e.g. Item - Rice)', 'error');
+                isSubmitting = false;
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.style.opacity = '1';
+                    submitBtn.style.cursor = 'pointer';
+                }
+                return;
+            }
+
+            formData.assistanceType = `${CUSTOM_ITEM_PREFIX}${customItemText}`;
+            assistanceTypeInput.value = formData.assistanceType;
         }
 
         if (itemAmountMode === ItemAmountMode.AMOUNT_ONLY && !hasAmount) {
@@ -989,6 +1171,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     amount: storedAmount,
                     item: null
                 });
+
+                await createFirebaseAmountRecord({
+                    ...formData,
+                    amount: storedAmount
+                });
             }
 
             if (shouldStoreItem) {
@@ -997,6 +1184,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     ...baseRecord,
                     amount: null,
                     item: storedItem
+                });
+
+                await createFirebaseQuantityRecord({
+                    ...formData,
+                    quantity: storedItem
                 });
             }
             
@@ -1080,11 +1272,6 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.removeItem('user');
             ipcRenderer.send('navigate', 'login.html');
         }
-    });
-
-    // Help button
-    helpBtn.addEventListener('click', () => {
-        showToast('Need help? Contact IT support at support@manila.gov.ph', 'info');
     });
 
     // Toast notification function

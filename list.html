@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file:; font-src 'self' data:;">
-    <base href="file:///C:/Users/franc/Downloads/Solicitation/">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file: asar:; font-src 'self' data: file: asar:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com;">
     <title>Barangay Directory - Solicitation Management System</title>
-    <link rel="stylesheet" href="styles/styles.css">
-    <link rel="stylesheet" href="styles/dashboard.css">
-    <link rel="stylesheet" href="styles/list.css">
-    <link rel="stylesheet" href="node_modules/toastify-js/src/toastify.css">
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="stylesheet" href="../styles/dashboard.css">
+    <link rel="stylesheet" href="../styles/list.css">
+    <link rel="stylesheet" href="../styles/responsive.css">
+    <link rel="stylesheet" href="../node_modules/toastify-js/src/toastify.css">
 </head>
 <body>
     <div class="dashboard-container">
@@ -17,7 +17,7 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                <div class="preview-image-small">
-                    <img src="assets/images/logo.png" alt="Lungsod ng Maynila seal">
+                    <img src="../assets/images/logo.png" alt="Lungsod ng Maynila seal">
                 </div>
                 <div class="sidebar-title">
                     <h3>SRMS</h3>
@@ -128,7 +128,10 @@
                         <h2 class="page-title">Barangay Directory</h2>
                         <p class="page-subtitle">Complete list of barangay officials and contact information</p>
                     </div>
-                    <button class="add-btn" id="addContactBtn">+ Add New Contact</button>
+                    <div class="list-header-actions">
+                        <select id="yearFilter" class="list-year-filter" aria-label="Filter by Year"></select>
+                        <button class="add-btn" id="addContactBtn">+ Add New Contact</button>
+                    </div>
                 </div>
 
                 <div class="search-box">
@@ -154,9 +157,9 @@
                                 <tr>
                                     <th>Zone</th>
                                     <th>Barangay</th>
-                                    <th>Current Chairman</th>
-                                    <th>Former Chairman</th>
+                                    <th>Chairman</th>
                                     <th>Contact Number</th>
+                                    <th>Year</th>
                                     <th class="actions-col">Actions</th>
                                 </tr>
                             </thead>
@@ -175,11 +178,6 @@
 
                     <div class="pagination">
                         <div class="contacts-count" id="contactsCount">Total contacts: 0</div>
-                        <div class="pager">
-                            <button class="pager-btn" id="prevBtn">Previous</button>
-                            <div class="pager-pages" id="pageButtons"></div>
-                            <button class="pager-btn" id="nextBtn">Next</button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -214,25 +212,18 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="currentChairmanInput">Current Chairman</label>
-                            <div class="autocomplete-wrapper">
-                                <input type="text" id="currentChairmanInput" required placeholder="Select or Type Current Chairman" autocomplete="off">
-                                <div class="autocomplete-dropdown" id="currentChairmanDropdown" style="z-index: 1000;"></div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="formerChairmanInput">Former Chairman</label>
-                            <div class="autocomplete-wrapper">
-                                <input type="text" id="formerChairmanInput" required placeholder="Select or Type Former Chairman" autocomplete="off">
-                                <div class="autocomplete-dropdown" id="formerChairmanDropdown" style="z-index: 1000;"></div>
-                            </div>
+                            <label for="currentChairmanInput">Chairman</label>
+                            <input type="text" id="currentChairmanInput" required placeholder="Enter Chairman" autocomplete="off">
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="phoneInput">Contact Number</label>
-                        <div class="autocomplete-wrapper">
-                            <input type="tel" id="phoneInput" required placeholder="Select or Type Contact Number" autocomplete="off">
-                            <div class="autocomplete-dropdown" id="phoneDropdown" style="z-index: 1000;"></div>
+                    <div class="form-row contact-year-row">
+                        <div class="form-group contact-group">
+                            <label for="phoneInput">Contact Number</label>
+                            <input type="tel" id="phoneInput" required placeholder="Enter Contact Number" autocomplete="off">
+                        </div>
+                        <div class="form-group year-group">
+                            <label for="yearInput">Year</label>
+                            <select id="yearInput" required></select>
                         </div>
                     </div>
                 </div>
@@ -244,7 +235,7 @@
         </div>
     </div>
 
-    <script src="scripts/list.js"></script>
+    <script src="../scripts/list.js"></script>
 </body>
 </html>
 

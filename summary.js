@@ -4,9 +4,28 @@ const Toastify = require('toastify-js');
 
 document.addEventListener('DOMContentLoaded', () => {
     try {
+        const userNameEl = document.querySelector('.user-name');
+        const userRoleEl = document.querySelector('.user-role');
+
+        function hydrateUserProfile() {
+            let sessionUser = null;
+            try {
+                sessionUser = JSON.parse(localStorage.getItem('user') || 'null');
+            } catch (error) {
+                sessionUser = null;
+            }
+
+            const displayName = String(sessionUser?.username || sessionUser?.name || 'Admin User').trim() || 'Admin User';
+            const displayRole = String(sessionUser?.role || 'Administrator').trim() || 'Administrator';
+
+            if (userNameEl) userNameEl.textContent = displayName;
+            if (userRoleEl) userRoleEl.textContent = displayRole;
+        }
+
+        hydrateUserProfile();
+
         const navItems = document.querySelectorAll('.nav-item');
         const logoutBtn = document.getElementById('logoutBtn');
-        const helpBtn = document.getElementById('helpBtn');
         const summaryValueTypeSelect = document.getElementById('summaryValueTypeSelect');
 
         const STORAGE_KEYS = {
@@ -71,10 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     ipcRenderer.send('navigate', 'login.html');
                 }
             });
-        }
-
-        if (helpBtn) {
-            helpBtn.addEventListener('click', () => showToast('Need help? Contact IT support at support@manila.gov.ph', 'info'));
         }
 
     // Helpers

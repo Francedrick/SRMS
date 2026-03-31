@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file:; font-src 'self' data:;">
-    <base href="file:///C:/Users/franc/Downloads/Solicitation/">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file: asar:; font-src 'self' data: file: asar:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com;">
     <title>Reports - Solicitation Management System</title>
-    <link rel="stylesheet" href="styles/styles.css">
-    <link rel="stylesheet" href="styles/dashboard.css">
-    <link rel="stylesheet" href="styles/reports.css">
-    <link rel="stylesheet" href="node_modules/toastify-js/src/toastify.css">
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="stylesheet" href="../styles/dashboard.css">
+    <link rel="stylesheet" href="../styles/reports.css">
+    <link rel="stylesheet" href="../styles/responsive.css">
+    <link rel="stylesheet" href="../node_modules/toastify-js/src/toastify.css">
 </head>
 <body>
     <div class="dashboard-container">
@@ -17,7 +17,7 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="preview-image-small">
-                    <img src="assets/images/logo.png" alt="Lungsod ng Maynila seal">
+                    <img src="../assets/images/logo.png" alt="Lungsod ng Maynila seal">
                 </div>
                 <div class="sidebar-title">
                     <h3>SRMS</h3>
@@ -260,7 +260,7 @@
     <div class="print-report" id="printReport" aria-hidden="true">
         <div class="print-report-header">
             <div class="print-report-seal">
-                <img src="assets/images/logo.png" alt="Lungsod ng Maynila seal">
+                <img src="../assets/images/logo.png" alt="Lungsod ng Maynila seal">
             </div>
             <div class="print-report-title">
                 <h1>District 5 - Solicitation Summary Report</h1>
@@ -315,7 +315,7 @@
         </div>
     </div>
 
-    <script src="scripts/reports.js"></script>
+    <script src="../scripts/reports.js"></script>
 </body>
 </html>
 

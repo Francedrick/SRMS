@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file:; font-src 'self' data:;">
-    <base href="file:///C:/Users/franc/Downloads/Solicitation/">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file: asar:; font-src 'self' data: file: asar:;">
     <title>Dashboard - Solicitation Management System</title>
-    <link rel="stylesheet" href="styles/styles.css">
-    <link rel="stylesheet" href="styles/dashboard.css">
+    <link rel="stylesheet" href="../styles/styles.css">
+    <link rel="stylesheet" href="../styles/dashboard.css">
+    <link rel="stylesheet" href="../styles/responsive.css">
 </head>
 <body>
     <div class="dashboard-container">
@@ -15,7 +15,7 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="preview-image-small">
-                    <img src="assets/images/logo.png" alt="Lungsod ng Maynila seal">
+                    <img src="../assets/images/logo.png" alt="Lungsod ng Maynila seal">
                 </div>
                 <div class="sidebar-title">
                     <h3>SRMS</h3>
@@ -145,18 +145,35 @@
                 <div class="dashboard-insights">
                     <div class="insight-card">
                         <div class="insight-header">
-                                    <h3 class="insight-title">Most Requested Quantity</h3>
+                            <h3 class="insight-title">MOST REQUESTED ITEM</h3>
+                            <div class="insight-icon" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                    <path d="M3.29 7 12 12l8.71-5"></path>
+                                    <line x1="12" y1="22" x2="12" y2="12"></line>
+                                </svg>
+                            </div>
                         </div>
                         <div class="insight-body">
                             <p class="insight-main" id="mostRequestedItem">N/A</p>
-                            <p class="insight-sub" id="mostRequestedItemQty">0 total quantity</p>
+                            <p class="insight-sub" id="mostRequestedItemQty">0</p>
+                            <div class="insight-progress-track" aria-hidden="true">
+                                <span class="insight-progress-bar" id="mostRequestedProgress"></span>
+                            </div>
+                            <div class="insight-range-wrap">
+                                <select class="insight-range-select" id="mostRequestedRange">
+                                    <option value="today">Today</option>
+                                    <option value="month" selected>Month</option>
+                                    <option value="year">Year</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
                     <div class="recent-card">
                         <div class="insight-header">
-                            <h3 class="insight-title">Recent Records</h3>
-                            <span class="recent-count">5 rows</span>
+                            <h3 class="insight-title">RECENT RECORDS</h3>
+                            <span class="recent-count">5 ROWS</span>
                         </div>
                         <div class="recent-table-wrapper">
                             <table class="recent-table">
@@ -185,13 +202,6 @@
                         <div class="stat-content">
                             <h3 class="stat-label">TOTAL SOLICITATIONS TODAY</h3>
                             <p class="stat-value">₱976,390</p>
-                            <div class="stat-change positive">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="18 15 12 9 6 15"></polyline>
-                                </svg>
-                                <span>+12.5%</span>
-                                <span class="stat-period">vs last period</span>
-                            </div>
                             <div class="stat-progress blue"></div>
                         </div>
                         <div class="stat-icon blue">
@@ -206,13 +216,6 @@
                         <div class="stat-content">
                             <h3 class="stat-label">TOTAL THIS MONTH</h3>
                             <p class="stat-value">₱910,780</p>
-                            <div class="stat-change positive">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="18 15 12 9 6 15"></polyline>
-                                </svg>
-                                <span>+8.2%</span>
-                                <span class="stat-period">vs last period</span>
-                            </div>
                             <div class="stat-progress purple"></div>
                         </div>
                         <div class="stat-icon purple">
@@ -229,13 +232,6 @@
                         <div class="stat-content">
                             <h3 class="stat-label">TOTAL REQUESTS TODAY</h3>
                             <p class="stat-value">824,154</p>
-                            <div class="stat-change positive">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="18 15 12 9 6 15"></polyline>
-                                </svg>
-                                <span>+15.3%</span>
-                                <span class="stat-period">vs last period</span>
-                            </div>
                             <div class="stat-progress green"></div>
                         </div>
                         <div class="stat-icon green">
@@ -252,13 +248,6 @@
                         <div class="stat-content">
                             <h3 class="stat-label">TOTAL THIS YEAR</h3>
                             <p class="stat-value">₱1,638,391</p>
-                            <div class="stat-change positive">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="18 15 12 9 6 15"></polyline>
-                                </svg>
-                                <span>+24.7%</span>
-                                <span class="stat-period">vs last period</span>
-                            </div>
                             <div class="stat-progress orange"></div>
                         </div>
                         <div class="stat-icon orange">
@@ -284,12 +273,10 @@
                 </div>
             </div>
             
-            <!-- Help Button -->
-            <button class="help-fab" id="helpBtn">?</button>
         </main>
     </div>
     
-    <script src="scripts/dashboard.js"></script>
+    <script src="../scripts/dashboard.js"></script>
 </body>
 </html>
 
