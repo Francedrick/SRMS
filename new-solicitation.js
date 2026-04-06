@@ -13,6 +13,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return { stringValue: String(value ?? '').trim() };
         }
 
+        function getFirebaseDocumentIdFromResponse(responsePayload) {
+            const documentName = String(responsePayload?.name || '').trim();
+            if (!documentName) {
+                return '';
+            }
+
+            const segments = documentName.split('/').filter(Boolean);
+            return segments.length ? segments[segments.length - 1] : '';
+        }
+
         async function createFirebaseAmountRecord(payload) {
             const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/amount?key=${FIREBASE_API_KEY}`;
 
@@ -22,8 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     barangay: toFirestoreStringValue(`Barangay ${payload.barangay}`),
                     chairman: toFirestoreStringValue(payload.chairman || 'N/A'),
                     solicitor: toFirestoreStringValue(payload.solicitor || 'N/A'),
-                    assistance: toFirestoreStringValue(payload.assistanceType || ''),
-                    'assistance type': toFirestoreStringValue(payload.assistanceType || ''),
+                    assistanceType: toFirestoreStringValue(payload.assistanceType || ''),
                     amount: toFirestoreStringValue(payload.amount),
                     date: toFirestoreStringValue(payload.date || ''),
                     status: toFirestoreStringValue(payload.status || 'pending')
@@ -53,8 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     barangay: toFirestoreStringValue(`Barangay ${payload.barangay}`),
                     chairman: toFirestoreStringValue(payload.chairman || 'N/A'),
                     solicitor: toFirestoreStringValue(payload.solicitor || 'N/A'),
-                    assistance: toFirestoreStringValue(payload.assistanceType || ''),
-                    'assistance type': toFirestoreStringValue(payload.assistanceType || ''),
+                    assistanceType: toFirestoreStringValue(payload.assistanceType || ''),
                     quantity: toFirestoreStringValue(payload.quantity),
                     date: toFirestoreStringValue(payload.date || ''),
                     status: toFirestoreStringValue(payload.status || 'pending')
@@ -1164,31 +1172,38 @@ document.addEventListener('DOMContentLoaded', () => {
             const shouldStoreAmount = storedAmount !== null;
             const shouldStoreItem = storedItem !== null;
 
+            let amountFirebaseDocId = '';
+            let itemFirebaseDocId = '';
+
             if (shouldStoreAmount) {
+                const amountResponse = await createFirebaseAmountRecord({
+                    ...formData,
+                    amount: storedAmount
+                });
+                amountFirebaseDocId = getFirebaseDocumentIdFromResponse(amountResponse);
+
                 amountRecords.push({
                     id: getNextId(amountRecords),
                     ...baseRecord,
+                    sourceRecordId: amountFirebaseDocId || baseRecord.sourceRecordId,
                     amount: storedAmount,
                     item: null
-                });
-
-                await createFirebaseAmountRecord({
-                    ...formData,
-                    amount: storedAmount
                 });
             }
 
             if (shouldStoreItem) {
+                const itemResponse = await createFirebaseQuantityRecord({
+                    ...formData,
+                    quantity: storedItem
+                });
+                itemFirebaseDocId = getFirebaseDocumentIdFromResponse(itemResponse);
+
                 itemRecords.push({
                     id: getNextId(itemRecords),
                     ...baseRecord,
+                    sourceRecordId: itemFirebaseDocId || baseRecord.sourceRecordId,
                     amount: null,
                     item: storedItem
-                });
-
-                await createFirebaseQuantityRecord({
-                    ...formData,
-                    quantity: storedItem
                 });
             }
             

@@ -188,6 +188,24 @@ document.addEventListener('DOMContentLoaded', () => {
         return String(value || '').replace(/[^0-9]/g, '');
     }
 
+    function toBarangayCode(value) {
+        const sanitized = String(value || '')
+            .toUpperCase()
+            .replace(/\s+/g, '')
+            .replace(/[^0-9A-Z-]/g, '')
+            .replace(/-{2,}/g, '-');
+
+        const parts = sanitized.split('-');
+        const numericPart = String(parts.shift() || '').replace(/[^0-9]/g, '');
+        const suffix = parts.join('').replace(/[^A-Z0-9]/g, '');
+
+        if (!numericPart) {
+            return '';
+        }
+
+        return suffix ? `${numericPart}-${suffix}` : numericPart;
+    }
+
     function toNumericDecimal(value) {
         let sanitized = String(value || '').replace(/[^0-9.]/g, '');
         const firstDotIndex = sanitized.indexOf('.');
@@ -207,6 +225,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function hasOnlyLetters(value, allowHyphen = false) {
         const pattern = allowHyphen ? /^[A-Za-z\s-]+$/ : /^[A-Za-z\s]+$/;
         return pattern.test(String(value || '').trim());
+    }
+
+    function isValidPersonField(value) {
+        const trimmed = String(value || '').trim();
+        if (!trimmed) {
+            return true;
+        }
+
+        if (/^N\/?A$/i.test(trimmed)) {
+            return true;
+        }
+
+        return /^[A-Za-z\s.'-]+$/.test(trimmed);
     }
 
     // Load records from localStorage
@@ -247,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (editBarangayInput) {
         editBarangayInput.setAttribute('inputmode', 'numeric');
         editBarangayInput.addEventListener('input', () => {
-            editBarangayInput.value = toNumericInteger(editBarangayInput.value);
+            editBarangayInput.value = toBarangayCode(editBarangayInput.value);
         });
     }
 
@@ -827,6 +858,101 @@ document.addEventListener('DOMContentLoaded', () => {
         return '';
     }
 
+    function toFirestoreStringValue(value) {
+        return { stringValue: String(value ?? '').trim() };
+    }
+
+    function formatZoneForFirestore(zone) {
+        const normalized = normalizeZone(zone);
+        return normalized ? `Zone ${normalized}` : '';
+    }
+
+    function formatBarangayForFirestore(barangay) {
+        const normalized = normalizeBarangay(barangay);
+        return normalized ? `Barangay ${normalized}` : '';
+    }
+
+    function getCollectionNameByValueType(valueType) {
+        return valueType === 'item' ? 'quantity' : 'amount';
+    }
+
+    function buildFirestoreUpdateFieldPaths(valueType) {
+        const basePaths = [
+            'zone',
+            'barangay',
+            'chairman',
+            'solicitor',
+            'assistanceType',
+            'date',
+            'status'
+        ];
+
+        if (valueType === 'item') {
+            return [...basePaths, 'quantity'];
+        }
+
+        return [...basePaths, 'amount'];
+    }
+
+    async function updateFirebaseSolicitationRecord(record, valueType) {
+        const sourceRecordId = String(record?.sourceRecordId || '').trim();
+        if (!sourceRecordId) {
+            throw new Error('Missing Firebase document id for this record.');
+        }
+
+        const collectionName = getCollectionNameByValueType(valueType);
+        const updateMaskParams = buildFirestoreUpdateFieldPaths(valueType)
+            .map(path => `updateMask.fieldPaths=${encodeURIComponent(path)}`)
+            .join('&');
+
+        const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/${encodeURIComponent(collectionName)}/${encodeURIComponent(sourceRecordId)}?${updateMaskParams}&key=${FIREBASE_API_KEY}`;
+
+        const fields = {
+            zone: toFirestoreStringValue(formatZoneForFirestore(record.zone)),
+            barangay: toFirestoreStringValue(formatBarangayForFirestore(record.barangay)),
+            chairman: toFirestoreStringValue(record.chairman || 'N/A'),
+            solicitor: toFirestoreStringValue(record.solicitor || 'N/A'),
+            assistanceType: toFirestoreStringValue(record.assistance || ''),
+            date: toFirestoreStringValue(record.date || ''),
+            status: toFirestoreStringValue(record.status || 'pending')
+        };
+
+        if (valueType === 'item') {
+            fields.quantity = toFirestoreStringValue(record.item || '');
+        } else {
+            fields.amount = toFirestoreStringValue(record.amount ?? '');
+        }
+
+        const response = await fetch(url, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fields })
+        });
+
+        if (!response.ok) {
+            const details = await response.text();
+            throw new Error(`Firebase update failed (${response.status}): ${details}`);
+        }
+
+        return response.json();
+    }
+
+    async function deleteFirebaseSolicitationRecord(record, valueType) {
+        const sourceRecordId = String(record?.sourceRecordId || '').trim();
+        if (!sourceRecordId) {
+            throw new Error('Missing Firebase document id for this record.');
+        }
+
+        const collectionName = getCollectionNameByValueType(valueType);
+        const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/${encodeURIComponent(collectionName)}/${encodeURIComponent(sourceRecordId)}?key=${FIREBASE_API_KEY}`;
+
+        const response = await fetch(url, { method: 'DELETE' });
+        if (!response.ok) {
+            const details = await response.text();
+            throw new Error(`Firebase delete failed (${response.status}): ${details}`);
+        }
+    }
+
     function mapFirebaseSolicitationDoc(doc, valueType, index) {
         const fields = doc?.fields || {};
         const firebaseDocId = String(doc?.name || '').split('/').pop() || '';
@@ -834,12 +960,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const barangay = normalizeBarangay(getFirestoreFieldString(fields, 'barangay'));
         const chairman = String(getFirestoreFieldString(fields, 'chairman') || 'N/A').trim() || 'N/A';
         const solicitor = String(getFirestoreFieldString(fields, 'solicitor') || 'N/A').trim() || 'N/A';
-        const assistance = String(
-            getFirestoreFieldString(fields, 'assistance') ||
-            getFirestoreFieldString(fields, 'assistance type') ||
-            getFirestoreFieldString(fields, 'assistance tyoe') ||
-            getFirestoreFieldString(fields, 'assistanceType')
-        ).trim();
+        const assistance = String(getFirestoreFieldString(fields, 'assistanceType')).trim();
         const date = String(getFirestoreFieldString(fields, 'date')).trim();
         const status = String(getFirestoreFieldString(fields, 'status') || 'pending').trim() || 'pending';
 
@@ -1038,7 +1159,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     if (editForm) {
-        editForm.addEventListener('submit', (e) => {
+        editForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const zoneValue = String(document.getElementById('editZone').value || '').trim();
@@ -1054,8 +1175,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            if (barangayValue && !/^\d+$/.test(barangayValue)) {
-                showToast('Barangay can only contain numbers.', 'error');
+            if (barangayValue && !/^\d+(-[A-Z0-9]+)?$/i.test(barangayValue)) {
+                showToast('Barangay must be numbers, optionally with suffix (e.g. 659-A).', 'error');
                 return;
             }
 
@@ -1064,18 +1185,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            if (chairmanValue && !hasOnlyLetters(chairmanValue)) {
-                showToast('Chairman can only contain letters.', 'error');
+            if (!isValidPersonField(chairmanValue)) {
+                showToast('Chairman contains invalid characters.', 'error');
                 return;
             }
 
-            if (solicitorValue && !hasOnlyLetters(solicitorValue)) {
-                showToast('Solicitor can only contain letters.', 'error');
+            if (!isValidPersonField(solicitorValue)) {
+                showToast('Solicitor contains invalid characters.', 'error');
                 return;
             }
 
-            if (assistanceValue && !hasOnlyLetters(assistanceValue, true)) {
-                showToast('Assistance Type can only contain letters.', 'error');
+            if (assistanceValue && !/^[A-Za-z0-9\s\-\/().,&+]+$/.test(assistanceValue)) {
+                showToast('Assistance Type contains invalid characters.', 'error');
                 return;
             }
             
@@ -1084,8 +1205,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const recordIndex = records.findIndex(r => r.id === id);
             
             if (recordIndex !== -1) {
+                const existingRecord = records[recordIndex];
+
                 // Update record
-                records[recordIndex] = {
+                const updatedRecord = {
+                    ...existingRecord,
                     id: id,
                     zone: normalizeZone(document.getElementById('editZone').value),
                     barangay: normalizeBarangay(document.getElementById('editBarangay').value),
@@ -1097,12 +1221,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     date: document.getElementById('editDate').value,
                     status: document.getElementById('editStatus').value
                 };
+
+                try {
+                    await updateFirebaseSolicitationRecord(updatedRecord, getCurrentValueType());
+                } catch (error) {
+                    console.error('Edit sync to Firebase failed:', error);
+                    const errorMessage = String(error?.message || 'Unknown Firebase error');
+                    showToast(`Failed to update Firebase record: ${errorMessage}`, 'error');
+                    return;
+                }
+
+                records[recordIndex] = updatedRecord;
                 
                 // Save to localStorage
                 localStorage.setItem(getCurrentStorageKey(), JSON.stringify(records));
                 
                 // Close modal and reload
                 editModal.style.display = 'none';
+                await syncSolicitationCollectionsFromFirebase();
                 loadRecords();
                 showToast('Record updated successfully!', 'success');
             }
@@ -1118,15 +1254,25 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    window.deleteRecord = function(id) {
+    window.deleteRecord = async function(id) {
         records = getRecordsFromCurrentStorage();
         const record = records.find(r => r.id === id);
         if (record && confirm(`Delete record for ${record.solicitor}?`)) {
+            try {
+                await deleteFirebaseSolicitationRecord(record, getCurrentValueType());
+            } catch (error) {
+                console.error('Delete sync to Firebase failed:', error);
+                const errorMessage = String(error?.message || 'Unknown Firebase error');
+                showToast(`Failed to delete Firebase record: ${errorMessage}`, 'error');
+                return;
+            }
+
             // Remove from array
             records = records.filter(r => r.id !== id);
             // Save back to localStorage
             localStorage.setItem(getCurrentStorageKey(), JSON.stringify(records));
-            // Reload and render
+            // Reload and render with fresh Firebase data
+            await syncSolicitationCollectionsFromFirebase();
             loadRecords();
             showToast('Record deleted successfully', 'success');
         }

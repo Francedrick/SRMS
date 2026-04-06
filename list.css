@@ -481,6 +481,65 @@
     color: #9CA3AF;
 }
 
+/* Autocomplete (List modal) */
+.autocomplete-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.autocomplete-wrapper input {
+    width: 100%;
+}
+
+.autocomplete-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    display: none;
+    background: #ffffff;
+    border: 1.5px solid #d8dfeb;
+    border-radius: 12px;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 1200;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+}
+
+.autocomplete-dropdown.show {
+    display: block;
+}
+
+.autocomplete-item {
+    padding: 10px 12px;
+    font-size: 16px;
+    color: #1f2937;
+    border-bottom: 1px solid #eef2f7;
+    cursor: pointer;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item:hover,
+.autocomplete-item.selected {
+    background: #eef2ff;
+}
+
+.autocomplete-empty {
+    padding: 12px;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.autocomplete-item mark {
+    background: #fef3c7;
+    color: #92400e;
+    border-radius: 3px;
+    padding: 0 2px;
+}
+
 /* Make zone and barangay fields wider */
 #zoneInput,
 #barangayInput {
