@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     chairman: toFirestoreStringValue(payload.chairman || 'N/A'),
                     solicitor: toFirestoreStringValue(payload.solicitor || 'N/A'),
                     assistance: toFirestoreStringValue(payload.assistanceType || ''),
-                    'assistance tyoe': toFirestoreStringValue(payload.assistanceType || ''),
+                    'assistance type': toFirestoreStringValue(payload.assistanceType || ''),
                     amount: toFirestoreStringValue(payload.amount),
                     date: toFirestoreStringValue(payload.date || ''),
                     status: toFirestoreStringValue(payload.status || 'pending')
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     chairman: toFirestoreStringValue(payload.chairman || 'N/A'),
                     solicitor: toFirestoreStringValue(payload.solicitor || 'N/A'),
                     assistance: toFirestoreStringValue(payload.assistanceType || ''),
-                    'assistance tyoe': toFirestoreStringValue(payload.assistanceType || ''),
+                    'assistance type': toFirestoreStringValue(payload.assistanceType || ''),
                     quantity: toFirestoreStringValue(payload.quantity),
                     date: toFirestoreStringValue(payload.date || ''),
                     status: toFirestoreStringValue(payload.status || 'pending')

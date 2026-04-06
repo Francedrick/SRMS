@@ -217,7 +217,6 @@
                                 <option value="pending">Pending</option>
                                 <option value="approved">Approved</option>
                                 <option value="rejected">Rejected</option>
-                                <option value="completed">Completed</option>
                             </select>
                         </div>
                     </div>
@@ -256,6 +255,55 @@
                 </div>
             </div>
             
+            <!-- View Modal -->
+            <div class="modal" id="viewModal">
+                <div class="modal-content view-modal-content">
+                    <div class="modal-header view-modal-header">
+                        <h2>View Record</h2>
+                        <button class="modal-close" id="closeViewModal">&times;</button>
+                    </div>
+                    <div class="view-form" id="viewForm">
+                        <div class="view-grid">
+                            <div class="view-field">
+                                <label>Zone</label>
+                                <div class="view-value" id="viewZone">-</div>
+                            </div>
+                            <div class="view-field">
+                                <label>Barangay</label>
+                                <div class="view-value" id="viewBarangay">-</div>
+                            </div>
+                            <div class="view-field">
+                                <label>Chairman</label>
+                                <div class="view-value" id="viewChairman">-</div>
+                            </div>
+                            <div class="view-field">
+                                <label>Solicitor</label>
+                                <div class="view-value" id="viewSolicitor">-</div>
+                            </div>
+                            <div class="view-field">
+                                <label>Assistance Type</label>
+                                <div class="view-value" id="viewAssistance">-</div>
+                            </div>
+                            <div class="view-field">
+                                <label id="viewValueLabel">Amount</label>
+                                <div class="view-value" id="viewAmount">-</div>
+                            </div>
+                            <div class="view-field">
+                                <label>Date</label>
+                                <div class="view-value" id="viewDate">-</div>
+                            </div>
+                            <div class="view-field">
+                                <label>Status</label>
+                                <div class="view-value" id="viewStatus">-</div>
+                            </div>
+                        </div>
+                        <div class="modal-actions view-modal-actions">
+                            <button type="button" class="btn-save" id="okViewModal">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Edit Modal -->
             <div class="modal" id="editModal">
                 <div class="modal-content">
@@ -318,7 +366,6 @@
                                     <option value="pending">Pending</option>
                                     <option value="approved">Approved</option>
                                     <option value="rejected">Rejected</option>
-                                    <option value="completed">Completed</option>
                                 </select>
                             </div>
                         </div>
@@ -332,6 +379,7 @@
         </main>
     </div>
     
+    <script src="../scripts/shell-layout.js"></script>
     <script src="../scripts/records.js"></script>
 </body>
 </html>

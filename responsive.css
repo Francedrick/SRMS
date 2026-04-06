@@ -73,11 +73,12 @@
     .filter-field select,
     .filter-field input,
     .filter-controls select,
+    .filter-date-input,
     .list-year-filter,
     .value-type-select,
     .report-value-type-select,
     .summary-value-type-select {
-        font-size: 15px;
+        font-size: 18px;
         min-height: 44px;
     }
 
@@ -89,7 +90,7 @@
     .chip,
     .btn-apply,
     .footer-btn {
-        font-size: 15px;
+        font-size: 18px;
         min-height: 42px;
     }
 
@@ -99,8 +100,23 @@
     .reports-table td,
     .recent-table th,
     .recent-table td {
-        font-size: 15px;
+        font-size: 18px;
         padding: 12px;
+    }
+
+    .solicitation-form .form-field label,
+    .solicitation-form .amount-item-labels label {
+        font-size: 20px;
+    }
+
+    .solicitation-form .form-field input[type="text"],
+    .solicitation-form .form-field input[type="number"],
+    .solicitation-form .form-field input[type="date"],
+    .solicitation-form .form-field select,
+    .solicitation-form .autocomplete-wrapper input,
+    .solicitation-form .assistance-tree-wrapper input {
+        font-size: 20px;
+        min-height: 48px;
     }
 }
 

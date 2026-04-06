@@ -40,8 +40,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const closeModalBtn = document.getElementById('closeModalBtn');
         const cancelBtn = document.getElementById('cancelBtn');
         const addContactForm = document.getElementById('addContactForm');
-        const modalTitle = document.querySelector('.modal-title');
+        const modalTitle = addContactModal ? addContactModal.querySelector('.modal-title') : null;
         const submitBtn = addContactForm ? addContactForm.querySelector('button[type="submit"]') : null;
+        const viewContactModal = document.getElementById('viewContactModal');
+        const closeViewContactBtn = document.getElementById('closeViewContactBtn');
+        const closeViewContactFooterBtn = document.getElementById('closeViewContactFooterBtn');
+        const viewZoneEl = document.getElementById('viewZone');
+        const viewBarangayEl = document.getElementById('viewBarangay');
+        const viewChairmanEl = document.getElementById('viewChairman');
+        const viewPhoneEl = document.getElementById('viewPhone');
+        const viewYearEl = document.getElementById('viewYear');
         const yearFilter = document.getElementById('yearFilter');
         const yearInput = document.getElementById('yearInput');
         const zoneInput = document.getElementById('zoneInput');
@@ -442,6 +450,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        if (action === 'view') {
+            openViewModal(record);
+            return;
+        }
+
         if (action === 'delete') {
             if (confirm('Delete this contact? This action cannot be undone.')) {
                 try {
@@ -553,7 +566,7 @@ document.addEventListener('DOMContentLoaded', () => {
         addContactForm.reset();
         if (mode === 'edit' && record) {
             editingId = record.id;
-            modalTitle.textContent = 'Edit Contact';
+            modalTitle.textContent = 'Edit List Chairman';
             submitBtn.textContent = 'Save Changes';
             if (yearInput) {
                 populateYearInputOptions();
@@ -566,8 +579,8 @@ document.addEventListener('DOMContentLoaded', () => {
             updateBarangayOptions(document.getElementById('zoneInput').value);
         } else {
             editingId = null;
-            modalTitle.textContent = 'Add New Contact';
-            submitBtn.textContent = 'Add Contact';
+            modalTitle.textContent = 'Add List Chairman';
+            submitBtn.textContent = 'Add List Chairman';
             if (yearInput) {
                 populateYearInputOptions();
             }
@@ -587,18 +600,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function openViewModal(record) {
+        if (!viewContactModal) return;
+
+        if (viewZoneEl) viewZoneEl.textContent = record.zone || '-';
+        if (viewBarangayEl) viewBarangayEl.textContent = record.barangay || '-';
+        if (viewChairmanEl) viewChairmanEl.textContent = record.current || '-';
+        if (viewPhoneEl) viewPhoneEl.textContent = record.phone || '-';
+        if (viewYearEl) viewYearEl.textContent = record.year || '-';
+
+        viewContactModal.classList.add('show');
+    }
+
+    function closeViewModal() {
+        if (!viewContactModal) return;
+        viewContactModal.classList.remove('show');
+    }
+
+    if (closeViewContactBtn) {
+        closeViewContactBtn.addEventListener('click', closeViewModal);
+    }
+
+    if (closeViewContactFooterBtn) {
+        closeViewContactFooterBtn.addEventListener('click', closeViewModal);
+    }
+
+    if (viewContactModal) {
+        viewContactModal.addEventListener('click', (e) => {
+            if (e.target === viewContactModal) {
+                closeViewModal();
+            }
+        });
+    }
+
     function applySearchFilter() {
-        const term = String(searchInput?.value || '').toLowerCase();
+        const term = String(searchInput?.value || '').trim().toLowerCase();
         const selectedYear = String(yearFilter?.value || '').trim();
+        const isExactZoneSearch = /^\d{2}$/.test(term);
+        const isExactBarangaySearch = /^\d{3}$/.test(term);
+        const numericTerm = term.replace(/\D/g, '');
+
         filtered = records.filter(r =>
             (!selectedYear || selectedYear === 'all' || String(r.year || '') === selectedYear) &&
-            (
-                String(r.year || '').toLowerCase().includes(term) ||
-                r.zone.toLowerCase().includes(term) ||
-                r.barangay.toLowerCase().includes(term) ||
-                r.current.toLowerCase().includes(term) ||
-                r.phone.toLowerCase().includes(term)
-            )
+            (!term || (
+                isExactZoneSearch
+                    ? String(r.zone || '').trim().toLowerCase() === term
+                    : isExactBarangaySearch
+                        ? String(r.barangay || '').trim().toLowerCase() === term
+                        : String(r.year || '').toLowerCase().includes(term) ||
+                          String(r.zone || '').toLowerCase().includes(term) ||
+                          String(r.barangay || '').toLowerCase().includes(term) ||
+                          String(r.current || '').toLowerCase().includes(term) ||
+                          String(r.phone || '').toLowerCase().includes(term) ||
+                          (numericTerm && String(r.phone || '').replace(/\D/g, '').includes(numericTerm))
+            ))
         );
         render();
     }
@@ -882,6 +937,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <td>${r.year || '-'}</td>
                 <td>
                     <div class="action-buttons">
+                        <button class="btn-action btn-view" data-action="view" data-id="${r.id}" title="View">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
                         <button class="btn-action btn-edit" data-action="edit" data-id="${r.id}" title="Edit">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>

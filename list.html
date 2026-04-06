@@ -130,7 +130,7 @@
                     </div>
                     <div class="list-header-actions">
                         <select id="yearFilter" class="list-year-filter" aria-label="Filter by Year"></select>
-                        <button class="add-btn" id="addContactBtn">+ Add New Contact</button>
+                        <button class="add-btn" id="addContactBtn">+ Add List Chairman</button>
                     </div>
                 </div>
 
@@ -182,6 +182,48 @@
                 </div>
             </div>
 
+            <!-- View Contact Modal -->
+            <div class="modal" id="viewContactModal">
+                <div class="modal-dialog view-modal-dialog">
+                    <div class="modal-header">
+                        <h3 class="modal-title">View List Chairman</h3>
+                        <button class="modal-close" id="closeViewContactBtn">&times;</button>
+                    </div>
+                    <div class="modal-body view-modal-body">
+                        <div class="view-grid">
+                            <div class="view-field">
+                                <label>Zone</label>
+                                <div class="view-value" id="viewZone">-</div>
+                            </div>
+                            <div class="view-field">
+                                <label>Barangay</label>
+                                <div class="view-value" id="viewBarangay">-</div>
+                            </div>
+                        </div>
+                        <div class="view-grid">
+                            <div class="view-field">
+                                <label>Chairman</label>
+                                <div class="view-value" id="viewChairman">-</div>
+                            </div>
+                            <div class="view-field">
+                                <label>Contact Number</label>
+                                <div class="view-value" id="viewPhone">-</div>
+                            </div>
+                        </div>
+                        <div class="view-grid view-year-grid">
+                            <div class="view-field view-year-field">
+                                <label>Year</label>
+                                <div class="view-value" id="viewYear">-</div>
+                            </div>
+                            <div class="view-spacer" aria-hidden="true"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer view-modal-footer">
+                        <button type="button" class="btn btn-primary" id="closeViewContactFooterBtn">OK</button>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -189,7 +231,7 @@
     <div class="modal" id="addContactModal">
         <div class="modal-dialog">
             <div class="modal-header">
-                <h3 class="modal-title">Add New Contact</h3>
+                <h3 class="modal-title">Add List Chairman</h3>
                 <button class="modal-close" id="closeModalBtn">&times;</button>
             </div>
             <form id="addContactForm">
@@ -215,26 +257,28 @@
                             <label for="currentChairmanInput">Chairman</label>
                             <input type="text" id="currentChairmanInput" required placeholder="Enter Chairman" autocomplete="off">
                         </div>
-                    </div>
-                    <div class="form-row contact-year-row">
                         <div class="form-group contact-group">
                             <label for="phoneInput">Contact Number</label>
                             <input type="tel" id="phoneInput" required placeholder="Enter Contact Number" autocomplete="off">
                         </div>
+                    </div>
+                    <div class="form-row year-row">
                         <div class="form-group year-group">
                             <label for="yearInput">Year</label>
                             <select id="yearInput" required></select>
                         </div>
+                        <div class="form-group form-group-spacer" aria-hidden="true"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Contact</button>
+                    <button type="submit" class="btn btn-primary">Add List Chairman</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <script src="../scripts/shell-layout.js"></script>
     <script src="../scripts/list.js"></script>
 </body>
 </html>

@@ -4,6 +4,10 @@ const Toastify = require('toastify-js');
 
 document.addEventListener('DOMContentLoaded', () => {
     try {
+        if (typeof window.applyShellLayoutParity === 'function') {
+            window.applyShellLayoutParity();
+        }
+
         const userNameEl = document.querySelector('.user-name');
         const userRoleEl = document.querySelector('.user-role');
 
@@ -28,6 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const logoutBtn = document.getElementById('logoutBtn');
         const filterZone = document.getElementById('filterZone');
         const filterBarangay = document.getElementById('filterBarangay');
+        const filterDateFrom = document.getElementById('filterDateFrom');
+        const filterDateTo = document.getElementById('filterDateTo');
         const tableBody = document.getElementById('tableBody');
         const tableContainer = document.getElementById('tableContainer');
         const emptyState = document.getElementById('emptyState');
@@ -155,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (reportValueTypeSelect) {
         reportValueTypeSelect.addEventListener('change', () => {
             reportData = getReportDataFromStorage();
-            filteredData = applyZoneBarangayFilters(reportData);
+            filteredData = applyAllFilters(reportData);
             updateValueTypeUI();
             renderTable(filteredData);
             updateTotal(filteredData);
@@ -178,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 populateSelect(filterBarangay, barangayList, 'All Barangays');
             }
 
-            filteredData = applyZoneBarangayFilters(reportData);
+            filteredData = applyAllFilters(reportData);
             renderTable(filteredData);
             updateTotal(filteredData);
 
@@ -198,7 +204,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 filterBarangay.value = barangay;
             }
 
-            filteredData = applyZoneBarangayFilters(reportData);
+            filteredData = applyAllFilters(reportData);
+            renderTable(filteredData);
+            updateTotal(filteredData);
+
+            if (isCalendarView) {
+                renderCalendar();
+            }
+        });
+    }
+
+    // Date filter listeners
+    if (filterDateFrom) {
+        filterDateFrom.addEventListener('change', () => {
+            filteredData = applyAllFilters(reportData);
+            renderTable(filteredData);
+            updateTotal(filteredData);
+
+            if (isCalendarView) {
+                renderCalendar();
+            }
+        });
+    }
+
+    if (filterDateTo) {
+        filterDateTo.addEventListener('change', () => {
+            filteredData = applyAllFilters(reportData);
             renderTable(filteredData);
             updateTotal(filteredData);
 
@@ -272,8 +303,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (printBtn) {
         printBtn.addEventListener('click', () => {
             showToast('Preparing print view...', 'info');
-            buildPrintReport();
-            window.print();
+            const printHtml = buildPrintReportHtml();
+            openPrintWindow(printHtml);
         });
     }
 
@@ -430,80 +461,200 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast(`Records for day ${day}:\n${eventsList}`, 'info');
     }
 
-    function buildPrintReport() {
+    function buildPrintReportHtml() {
         const valueType = getCurrentValueType();
-        const barangayFilter = filterBarangay.value;
-        const displayBarangay = barangayFilter || 'All Barangays';
-        const generatedOn = new Date();
+        const displayValueLabel = valueType === 'item' ? 'Quantity' : 'Amount';
+        const reportTitle = valueType === 'item'
+            ? 'District 5 - Solicitation Quantity Report'
+            : 'District 5 - Solicitation Amount Report';
+        const generatedOn = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
         const totalRecords = filteredData.length;
         const totalAmount = filteredData.reduce((sum, row) => sum + Number(row.amount || 0), 0);
         const totalItems = filteredData.reduce((sum, row) => sum + parseItemQuantity(row.item), 0);
-
-        if (printBarangay) {
-            printBarangay.textContent = displayBarangay;
-        }
-        if (printGenerated) {
-            printGenerated.textContent = generatedOn.toLocaleString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
-        if (printTotalRecords) {
-            printTotalRecords.textContent = totalRecords.toLocaleString('en-US');
-        }
-        if (printTotalAmount) {
-            printTotalAmount.textContent = valueType === 'item'
-                ? totalItems.toLocaleString('en-US')
-                : `₱${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-        }
-        if (printTotalValueLabel) {
-            printTotalValueLabel.textContent = valueType === 'item' ? 'Total Quantity' : 'Total Amount';
-        }
-        if (printSummaryValueHeader) {
-            printSummaryValueHeader.textContent = valueType === 'item' ? 'Total Quantity' : 'Total Amount';
-        }
-        if (printPeriod) {
-            printPeriod.textContent = getReportPeriod(filteredData);
-        }
+        const totalDisplay = valueType === 'item'
+            ? totalItems.toLocaleString('en-US')
+            : `₱${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
 
         const summaryMap = {};
         filteredData.forEach(row => {
-            const key = row.barangay;
+            const key = String(row.barangay || 'N/A');
             if (!summaryMap[key]) {
-                summaryMap[key] = { barangay: row.barangay, zone: row.zone, records: 0, amount: 0, items: 0 };
+                summaryMap[key] = { barangay: key, zone: String(row.zone || 'N/A'), records: 0, amount: 0, items: 0 };
             }
             summaryMap[key].records += 1;
             summaryMap[key].amount += Number(row.amount || 0);
             summaryMap[key].items += parseItemQuantity(row.item);
         });
 
-        const summaryRows = Object.values(summaryMap).sort((a, b) => a.barangay.localeCompare(b.barangay));
+        const summaryRows = Object.values(summaryMap)
+            .sort((a, b) => a.barangay.localeCompare(b.barangay));
 
-        if (printSummaryBody) {
-            if (!summaryRows.length) {
-                printSummaryBody.innerHTML = `
-                    <tr>
-                        <td colspan="4">No records available for the selected filter.</td>
-                    </tr>
-                `;
-            } else {
-                printSummaryBody.innerHTML = summaryRows.map(row => `
-                    <tr>
-                        <td>${row.barangay}</td>
-                        <td>${row.zone}</td>
-                        <td>${row.records.toLocaleString('en-US')}</td>
-                        <td>${valueType === 'item' ? row.items.toLocaleString('en-US') : `₱${row.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}</td>
-                    </tr>
-                `).join('');
-            }
+        const summaryRowsHtml = summaryRows.length
+            ? summaryRows.map(row => `
+                <tr>
+                    <td>${escapeHtml(row.barangay)}</td>
+                    <td>${escapeHtml(row.zone)}</td>
+                    <td>${row.records.toLocaleString('en-US')}</td>
+                    <td>${valueType === 'item' ? row.items.toLocaleString('en-US') : `₱${row.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}</td>
+                </tr>
+            `).join('')
+            : `
+                <tr>
+                    <td colspan="4">No records available for the selected filter.</td>
+                </tr>
+            `;
+
+        const detailRowsHtml = filteredData.length
+            ? filteredData.map((row, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${escapeHtml(String(row.zone || '-'))}</td>
+                    <td>${escapeHtml(String(row.barangay || '-'))}</td>
+                    <td>${escapeHtml(String(row.chairman || '-'))}</td>
+                    <td>${escapeHtml(String(row.solicitor || '-'))}</td>
+                    <td>${escapeHtml(String(row.assistance || '-'))}</td>
+                    <td>${valueType === 'item'
+                        ? escapeHtml(String(String(row.item || '').trim() || 'N/A'))
+                        : `₱${Number(row.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`}</td>
+                    <td>${escapeHtml(formatDate(row.date))}</td>
+                </tr>
+            `).join('')
+            : `
+                <tr>
+                    <td colspan="8">No records available for the selected filter.</td>
+                </tr>
+            `;
+
+        return `
+            <html>
+                <head>
+                    <meta charset="UTF-8">
+                    <title>${escapeHtml(reportTitle)}</title>
+                    <style>
+                        @page { margin: 18mm; }
+                        body { font-family: Arial, sans-serif; margin: 0; color: #111827; }
+                        h1 { margin: 0 0 4px; font-size: 20px; text-align: center; color: #2C5F8D; }
+                        h2 { margin: 18px 0 8px; font-size: 16px; color: #1E4A6F; }
+                        .subtitle { margin: 0 0 2px; text-align: center; font-size: 13px; }
+                        .meta { margin: 0 0 14px; text-align: center; font-size: 12px; }
+                        .summary-grid { display: flex; gap: 12px; margin: 12px 0 16px; }
+                        .summary-card { flex: 1; border: 1px solid #d1d5db; border-radius: 8px; padding: 10px; text-align: center; }
+                        .summary-label { font-size: 12px; color: #4b5563; }
+                        .summary-value { font-size: 18px; font-weight: 700; margin-top: 4px; }
+                        table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+                        th { background: #2C5F8D; color: #fff; padding: 8px; border: 1px solid #bfc9d7; font-size: 12px; }
+                        td { padding: 7px; border: 1px solid #d1d5db; font-size: 11px; text-align: center; }
+                        .note { margin-top: 12px; font-size: 11px; line-height: 1.5; }
+                        .signature { display: flex; justify-content: space-between; gap: 12px; margin-top: 24px; page-break-inside: avoid; }
+                        .signature div { width: 32%; text-align: center; font-size: 11px; }
+                        .footer { margin-top: 18px; text-align: center; font-size: 10px; color: #6b7280; }
+                        .page-break { page-break-before: always; }
+                        tr { page-break-inside: avoid; }
+                    </style>
+                </head>
+                <body>
+                    <h1>SOLICITATION RECORD MONITORING SYSTEM</h1>
+                    <p class="subtitle">City Government of Manila</p>
+                    <p class="subtitle"><strong>${escapeHtml(reportTitle)}</strong></p>
+                    <p class="meta">Date Generated: ${escapeHtml(generatedOn)} | Report Period: ${escapeHtml(getReportPeriod(filteredData))}</p>
+
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <div class="summary-label">Total Records</div>
+                            <div class="summary-value">${totalRecords.toLocaleString('en-US')}</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-label">Total ${escapeHtml(displayValueLabel)}</div>
+                            <div class="summary-value">${totalDisplay}</div>
+                        </div>
+                    </div>
+
+                    <h2>Solicitation Report Summary by Barangay</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Barangay</th>
+                                <th>Zone</th>
+                                <th>Records</th>
+                                <th>Total ${escapeHtml(displayValueLabel)}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${summaryRowsHtml}
+                        </tbody>
+                    </table>
+
+                    <div class="page-break"></div>
+
+                    <h2>Detailed Solicitation Records</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Zone</th>
+                                <th>Barangay</th>
+                                <th>Chairman</th>
+                                <th>Solicitor</th>
+                                <th>Assistance</th>
+                                <th>${escapeHtml(displayValueLabel)}</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${detailRowsHtml}
+                        </tbody>
+                    </table>
+
+                    <p class="note"><strong>Note:</strong><br>
+                    This report is generated based on current filters for zone, barangay, and date range.<br>
+                    Values shown reflect the selected report type (${escapeHtml(displayValueLabel)}).</p>
+
+                    <div class="signature">
+                        <div>Prepared by<br><br>__________________________<br>Name &amp; Signature</div>
+                        <div>Reviewed by<br><br>__________________________<br>Name &amp; Signature</div>
+                        <div>Approved by<br><br>__________________________<br>Name &amp; Signature</div>
+                    </div>
+
+                    <div class="footer">
+                        SOLICITATION RECORD MONITORING SYSTEM<br>
+                        This is a computer-generated report from the City Government of Manila<br>
+                        © 2026 City Government of Manila. All Rights Reserved.
+                    </div>
+                </body>
+            </html>
+        `;
+    }
+
+    function openPrintWindow(htmlContent) {
+        const printWindow = window.open('', '_blank', 'width=1024,height=768');
+        if (!printWindow) {
+            showToast('Unable to open print preview. Please allow popups.', 'error');
+            return;
         }
 
-        if (printReport) {
-            printReport.setAttribute('aria-hidden', 'false');
-        }
+        printWindow.document.open();
+        printWindow.document.write(htmlContent);
+        printWindow.document.close();
+
+        printWindow.onload = () => {
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        };
+    }
+
+    function escapeHtml(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     function renderTable(data) {
@@ -644,6 +795,34 @@ document.addEventListener('DOMContentLoaded', () => {
             const matchesZone = !zone || normalizeZone(row.zone) === zone;
             const matchesBarangay = !barangay || normalizeBarangay(row.barangay) === barangay;
             return matchesZone && matchesBarangay;
+        });
+    }
+
+    function applyAllFilters(sourceData) {
+        const zone = filterZone ? normalizeZone(filterZone.value) : '';
+        const barangay = filterBarangay ? normalizeBarangay(filterBarangay.value) : '';
+        const dateFrom = filterDateFrom ? filterDateFrom.value : '';
+        const dateTo = filterDateTo ? filterDateTo.value : '';
+
+        return sourceData.filter(row => {
+            const matchesZone = !zone || normalizeZone(row.zone) === zone;
+            const matchesBarangay = !barangay || normalizeBarangay(row.barangay) === barangay;
+            
+            let matchesDate = true;
+            if (dateFrom || dateTo) {
+                const recordDate = new Date(row.date);
+                if (dateFrom) {
+                    const fromDate = new Date(dateFrom);
+                    matchesDate = matchesDate && recordDate >= fromDate;
+                }
+                if (dateTo) {
+                    const toDate = new Date(dateTo);
+                    toDate.setHours(23, 59, 59, 999); // Include entire end date
+                    matchesDate = matchesDate && recordDate <= toDate;
+                }
+            }
+            
+            return matchesZone && matchesBarangay && matchesDate;
         });
     }
 

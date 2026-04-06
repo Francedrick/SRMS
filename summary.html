@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file: asar:; font-src 'self' data: file: asar:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com;">
     <title>Summary - Solicitation Management System</title>
-    <link rel="stylesheet" href="../styles/styles.css">
-    <link rel="stylesheet" href="../styles/dashboard.css">
-    <link rel="stylesheet" href="../styles/summary.css">
-    <link rel="stylesheet" href="../styles/responsive.css">
+    <link rel="stylesheet" href="../styles/styles.css?v=20260405-1">
+    <link rel="stylesheet" href="../styles/dashboard.css?v=20260405-1">
+    <link rel="stylesheet" href="../styles/summary.css?v=20260405-1">
+    <link rel="stylesheet" href="../styles/responsive.css?v=20260405-1">
     <link rel="stylesheet" href="../node_modules/toastify-js/src/toastify.css">
 </head>
 <body>
@@ -129,6 +129,11 @@
                         <p class="page-subtitle">Comprehensive breakdown of all solicitations</p>
                     </div>
                     <div class="summary-actions">
+                        <select id="summaryPeriodSelect" class="summary-period-select" aria-label="Summary Period">
+                            <option value="today" selected>Today</option>
+                            <option value="month">Month</option>
+                            <option value="year">Year</option>
+                        </select>
                         <select id="summaryValueTypeSelect" class="summary-value-type-select" aria-label="Summary Value Type">
                             <option value="amount" selected>Amount</option>
                             <option value="item">Quantity</option>
@@ -225,18 +230,12 @@
                         <div class="overall-label">Overall Total District 5</div>
                         <div class="overall-value" id="overallTotal">₱0</div>
                     </div>
-                    <div class="overall-trend">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <polyline points="4 14 10 8 14 12 20 6"></polyline>
-                            <polyline points="20 6 16 6 16 10"></polyline>
-                        </svg>
-                        <span class="trend-label">+18.5%</span>
-                    </div>
                 </div>
             </div>
         </main>
     </div>
 
+    <script src="../scripts/shell-layout.js"></script>
     <script src="../scripts/summary.js"></script>
 </body>
 </html>

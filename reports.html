@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: file: asar:; font-src 'self' data: file: asar:; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com;">
     <title>Reports - Solicitation Management System</title>
-    <link rel="stylesheet" href="../styles/styles.css">
-    <link rel="stylesheet" href="../styles/dashboard.css">
-    <link rel="stylesheet" href="../styles/reports.css">
-    <link rel="stylesheet" href="../styles/responsive.css">
+    <link rel="stylesheet" href="../styles/styles.css?v=20260405-1">
+    <link rel="stylesheet" href="../styles/dashboard.css?v=20260405-1">
+    <link rel="stylesheet" href="../styles/reports.css?v=20260405-1">
+    <link rel="stylesheet" href="../styles/responsive.css?v=20260405-1">
     <link rel="stylesheet" href="../node_modules/toastify-js/src/toastify.css">
 </head>
 <body>
@@ -156,7 +156,7 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                         </svg>
-                        <span>Filter by Zone / Barangay:</span>
+                        <span>Filter by Zone / Barangay / Date:</span>
                     </div>
                     <div class="filter-controls">
                         <select id="filterZone">
@@ -170,6 +170,8 @@
                             <option value="Barangay 4">Barangay 4</option>
                             <option value="Barangay 5">Barangay 5</option>
                         </select>
+                        <input type="date" id="filterDateFrom" class="filter-date-input" aria-label="From Date">
+                        <input type="date" id="filterDateTo" class="filter-date-input" aria-label="To Date">
                     </div>
                 </div>
 
@@ -315,6 +317,7 @@
         </div>
     </div>
 
+    <script src="../scripts/shell-layout.js"></script>
     <script src="../scripts/reports.js"></script>
 </body>
 </html>

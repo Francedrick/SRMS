@@ -50,6 +50,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const editValueLabel = document.getElementById('editValueLabel');
     const editAssistanceInput = document.getElementById('editAssistance');
     const editAssistanceDropdown = document.getElementById('editAssistanceDropdown');
+    const viewModal = document.getElementById('viewModal');
+    const closeViewModal = document.getElementById('closeViewModal');
+    const okViewModal = document.getElementById('okViewModal');
 
     // Page map for navigation
     const pageMap = {
@@ -833,6 +836,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const solicitor = String(getFirestoreFieldString(fields, 'solicitor') || 'N/A').trim() || 'N/A';
         const assistance = String(
             getFirestoreFieldString(fields, 'assistance') ||
+            getFirestoreFieldString(fields, 'assistance type') ||
             getFirestoreFieldString(fields, 'assistance tyoe') ||
             getFirestoreFieldString(fields, 'assistanceType')
         ).trim();
@@ -935,25 +939,56 @@ document.addEventListener('DOMContentLoaded', () => {
     window.viewRecord = function(id) {
         records = getRecordsFromCurrentStorage();
         const record = records.find(r => r.id === id);
-        if (record) {
+        if (record && viewModal) {
             const rawAmount = record.amount;
             const hasAmount = rawAmount !== null && rawAmount !== undefined && String(rawAmount).trim() !== '';
             const numericAmount = Number(rawAmount);
             const amountText = hasAmount && Number.isFinite(numericAmount)
                 ? `₱${numericAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
                 : 'N/A';
-            const details = `
-Zone: ${record.zone}
-Barangay: ${record.barangay}
-Chairman: ${record.chairman}
-Solicitor: ${record.solicitor}
-Assistance: ${record.assistance}
-Amount: ${amountText}
-Date: ${formatDate(record.date)}
-Status: ${capitalizeFirst(record.status)}`;
-            alert(details);
+            const itemText = String(record.item || '').trim() || 'N/A';
+            const valueType = getCurrentValueType();
+            const valueLabelEl = document.getElementById('viewValueLabel');
+            const valueEl = document.getElementById('viewAmount');
+
+            document.getElementById('viewZone').textContent = record.zone || 'N/A';
+            document.getElementById('viewBarangay').textContent = record.barangay || 'N/A';
+            document.getElementById('viewChairman').textContent = record.chairman || 'N/A';
+            document.getElementById('viewSolicitor').textContent = record.solicitor || 'N/A';
+            document.getElementById('viewAssistance').textContent = record.assistance || 'N/A';
+            document.getElementById('viewDate').textContent = formatDate(record.date);
+            document.getElementById('viewStatus').textContent = capitalizeFirst(record.status || 'pending');
+
+            if (valueLabelEl) {
+                valueLabelEl.textContent = valueType === 'item' ? 'Quantity' : 'Amount';
+            }
+            if (valueEl) {
+                valueEl.textContent = valueType === 'item' ? itemText : amountText;
+            }
+
+            viewModal.style.display = 'flex';
         }
     };
+
+    if (closeViewModal && viewModal) {
+        closeViewModal.addEventListener('click', () => {
+            viewModal.style.display = 'none';
+        });
+    }
+
+    if (okViewModal && viewModal) {
+        okViewModal.addEventListener('click', () => {
+            viewModal.style.display = 'none';
+        });
+    }
+
+    if (viewModal) {
+        viewModal.addEventListener('click', (e) => {
+            if (e.target === viewModal) {
+                viewModal.style.display = 'none';
+            }
+        });
+    }
 
     window.editRecord = function(id) {
         records = getRecordsFromCurrentStorage();

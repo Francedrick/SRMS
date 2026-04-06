@@ -4,6 +4,10 @@ const Toastify = require('toastify-js');
 
 document.addEventListener('DOMContentLoaded', () => {
     try {
+        if (typeof window.applyShellLayoutParity === 'function') {
+            window.applyShellLayoutParity();
+        }
+
         const userNameEl = document.querySelector('.user-name');
         const userRoleEl = document.querySelector('.user-role');
 
@@ -27,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const navItems = document.querySelectorAll('.nav-item');
         const logoutBtn = document.getElementById('logoutBtn');
         const summaryValueTypeSelect = document.getElementById('summaryValueTypeSelect');
+        const summaryPeriodSelect = document.getElementById('summaryPeriodSelect');
 
         const STORAGE_KEYS = {
             amount: 'solicitationAmountRecords',
@@ -34,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         let currentValueType = summaryValueTypeSelect?.value === 'item' ? 'item' : 'amount';
+        let currentPeriod = summaryPeriodSelect?.value || 'today';
 
         // Page map for navigation
         const pageMap = {
@@ -53,6 +59,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (summaryValueTypeSelect) {
             summaryValueTypeSelect.addEventListener('change', () => {
                 currentValueType = summaryValueTypeSelect.value === 'item' ? 'item' : 'amount';
+                renderSummary();
+            });
+        }
+
+        if (summaryPeriodSelect) {
+            summaryPeriodSelect.addEventListener('change', () => {
+                currentPeriod = summaryPeriodSelect.value || 'today';
                 renderSummary();
             });
         }
@@ -158,10 +171,70 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const key = currentValueType === 'item' ? STORAGE_KEYS.item : STORAGE_KEYS.amount;
             const records = JSON.parse(localStorage.getItem(key) || '[]');
-            return Array.isArray(records) ? records : [];
+            const allRecords = Array.isArray(records) ? records : [];
+
+            return allRecords.filter(record => isRecordInPeriod(record, currentPeriod));
         } catch (e) {
             console.error('Error parsing summary records:', e);
             return [];
+        }
+    }
+
+    function isRecordInPeriod(record, period) {
+        if (!record) {
+            return false;
+        }
+
+        try {
+            // Try to get date from record - handle various date field names
+            const dateStr = record.date || record.createdAt || record.created;
+
+            if (!dateStr) {
+                // Strict filter: undated records should not appear in today/month/year views.
+                return false;
+            }
+
+            // Parse the date - handle both ISO strings and YYYY-MM-DD format
+            let recordDate;
+            if (typeof dateStr === 'string' && dateStr.includes('-')) {
+                // Parse YYYY-MM-DD format
+                const parts = dateStr.split('T')[0].split('-');
+                if (parts.length === 3) {
+                    const [year, month, day] = parts.map(Number);
+                    recordDate = new Date(year, month - 1, day);
+                    recordDate.setHours(0, 0, 0, 0);
+                } else {
+                    return false;
+                }
+            } else {
+                recordDate = new Date(dateStr);
+                recordDate.setHours(0, 0, 0, 0);
+            }
+
+            // Invalid date should not match any period.
+            if (isNaN(recordDate.getTime())) {
+                return false;
+            }
+
+            // Get today's date in local timezone
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (period === 'today') {
+                return recordDate.getTime() === today.getTime();
+            } else if (period === 'month') {
+                const currentMonth = today.getMonth();
+                const currentYear = today.getFullYear();
+                return recordDate.getMonth() === currentMonth && recordDate.getFullYear() === currentYear;
+            } else if (period === 'year') {
+                const currentYear = today.getFullYear();
+                return recordDate.getFullYear() === currentYear;
+            }
+
+            return true;
+        } catch (e) {
+            console.error('Error filtering by period:', e);
+            return false;
         }
     }
 
@@ -175,10 +248,25 @@ document.addEventListener('DOMContentLoaded', () => {
     function buildDonut(donutId, legendId, totalId, footerId, data, tooltipEl) {
         if (!data || data.length === 0) {
             console.warn(`No data for donut: ${donutId}`);
+            const donut = document.getElementById(donutId);
+            const legend = document.getElementById(legendId);
             const totalEl = document.getElementById(totalId);
             if (totalEl) totalEl.textContent = formatDisplay(0);
             const footerEl = document.getElementById(footerId);
             if (footerEl) footerEl.textContent = formatDisplay(0);
+
+            // Reset chart visuals so previous filter results do not remain visible.
+            if (donut) {
+                donut.style.background = '#E5E7EB';
+            }
+
+            if (legend) {
+                legend.innerHTML = '';
+            }
+
+            if (tooltipEl) {
+                hideTooltip(tooltipEl);
+            }
             return;
         }
         
