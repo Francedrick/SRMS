@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }, {});
 
     const BARANGAY_DROPDOWN_DELAY_MS = 250;
-    const MIN_VISIBLE_TABLE_ROWS = 8;
+    const MIN_VISIBLE_TABLE_ROWS = 10;
     const ITEM_FILTER_PREFIX = 'Item - ';
     const STORAGE_KEYS = {
         amount: 'solicitationAmountRecords',
